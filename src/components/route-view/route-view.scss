@@ -1,0 +1,11 @@
+route-view {
+    div {
+        &.inactive {
+            opacity: 0.5;
+        }
+        ion-badge {
+            margin: 5px 2px;
+            font-size: 10px;
+        }
+    }
+}

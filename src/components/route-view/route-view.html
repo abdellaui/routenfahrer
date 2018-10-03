@@ -1,0 +1,19 @@
+<div [class]="route.isTask() ? 'active' : 'inactive'">
+
+  <div class="text-ellipsis">
+    {{ route.name }}
+
+    <p>
+      {{ route.formattedAddress }}
+    </p>
+  </div>
+  <div text-center>
+    <ion-badge *ngFor="let day of route.dayKeys()" [color]="
+                    route.activeDays[day]
+                    ? 'default'
+                    : 'light'">
+      {{day}}
+    </ion-badge>
+  </div>
+
+</div>

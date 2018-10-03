@@ -1,0 +1,53 @@
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>{{(editing)?'Route bearbeiten':'Route erstellen'}}</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content class="outer-content">
+
+
+  <ion-list>
+    <ion-item>
+      <ion-label color="primary" stacked>Suche</ion-label>
+      <ion-input #sInput placeholder="Adresssuche beginnen" clearInput (ionChange)="onChange()" [(ngModel)]="currentRoute.formattedAddress"></ion-input>
+    </ion-item>
+
+    <ion-item ion-item class="mapShow" #sMap>
+    </ion-item>
+
+    <div *ngIf="showAddressSetting">
+      <ion-item-divider color="light">Konfiguration</ion-item-divider>
+      <ion-item>
+        <ion-label color="primary" fixed>Name *</ion-label>
+        <ion-input placeholder="Name eingeben *" [(ngModel)]="currentRoute.name" clearInput></ion-input>
+      </ion-item>
+      <ion-item *ngFor="let info of getInfoKeys()">
+        <ion-label color="primary" fixed>{{ addressInfos[info] }}</ion-label>
+        <ion-input placeholder="{{ addressInfos[info] }} eingeben" (ionChange)="onChange()" [(ngModel)]="currentRoute.address[info]"
+          clearInput></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-icon name="information-circle" item-start></ion-icon>
+        Mit * markierte Felder sind Pflichtpfelder!
+      </ion-item>
+
+      <ion-item-divider color="light">Wiederholung</ion-item-divider>
+
+
+      <ion-item *ngFor="let day of currentRoute.dayKeys()">
+        <ion-label>{{ dayFullname[day] }}</ion-label>
+        <ion-toggle color="secondary" [(ngModel)]="currentRoute.activeDays[day]"></ion-toggle>
+      </ion-item>
+
+
+      <ion-item-divider color="light"></ion-item-divider>
+
+      <button ion-item (click)="storeInput()" [disabled]="!validateInput()" color="secondary" outline detail-none
+        text-center>Speichern</button>
+    </div>
+  </ion-list>
+</ion-content>

@@ -1,14 +1,46 @@
 <ion-header>
-  <ion-navbar>
-    <ion-title>
-      Ionic Blank
-    </ion-title>
-  </ion-navbar>
+  <ion-toolbar>
+    <ion-title>Routen</ion-title>
+
+    <ion-buttons start *ngIf="routesProvider.currentRoute">
+      <button start ion-button (click)="switchReorder()">
+        {{reordering?'Fertig':'Umsortieren'}}
+      </button>
+    </ion-buttons>
+
+    <ion-buttons end>
+      <button ion-button (click)="createRoute()">
+        Erstellen
+      </button>
+    </ion-buttons>
+
+  </ion-toolbar>
 </ion-header>
 
-<ion-content padding>
-  The world is your oyster.
-  <p>
-    If you get lost, the <a href="http://ionicframework.com/docs/v2">docs</a> will be your guide.
-  </p>
+<ion-content class="outer-content">
+  <route-liste [reorder]="reordering"></route-liste>
 </ion-content>
+
+<ion-footer>
+
+
+  <ion-item *ngIf="routesProvider.currentRoute" class="mainToolbar" no-lines>
+    <div class="text-ellipsis">
+      {{routesProvider.currentRoute.name}}
+      <p>
+        {{routesProvider.currentRoute.formattedAddress}}
+      </p>
+    </div>
+    <div item-end class="playButtons">
+      <button color="dark" (click)="routesProvider.prev()" ion-button large clear no-padding>
+        <ion-icon name="rewind"></ion-icon>
+      </button>
+      <button color="dark" (click)="routesProvider.start()" ion-button large clear no-padding>
+        <ion-icon [name]="routesProvider.isPlaying?'pause':'play'"></ion-icon>
+      </button>
+      <button color="dark" (click)="routesProvider.next()" ion-button large clear no-padding>
+        <ion-icon name="fastforward"></ion-icon>
+      </button>
+    </div>
+  </ion-item>
+</ion-footer>

@@ -1,0 +1,47 @@
+<ion-list *ngIf="!routesProvider.routes.length" margin-top margin-left>
+  Aktuelle keine Routen verfügbar!
+</ion-list>
+<ion-list #listOfRoutes *ngIf="routesProvider.routes.length" [reorder]="canReorder" (ionItemReorder)="this.routesProvider.reorderRoutes($event)">
+
+
+  <ion-item-sliding *ngFor="let item of routesProvider.routes; let itemIndex = index">
+    <ion-item text-wrap>
+
+      <ion-icon item-start *ngIf="item.isTask()" [name]="item.done
+                  ?'arrow-down'
+                  :'arrow-forward'">
+      </ion-icon>
+
+      <route-view [route]="item"></route-view>
+    </ion-item>
+
+    <ion-item-options side="left">
+      <button icon-start ion-button color="secondary" (click)="play(itemIndex)">
+        <ion-icon name="play"></ion-icon>
+        Starten
+      </button>
+      <button icon-start ion-button (click)="edit(item)">
+        <ion-icon name="cog"></ion-icon>
+        Bearbeiten
+      </button>
+    </ion-item-options>
+
+    <ion-item-options side="right">
+      <button icon-start ion-button color="danger" (click)="delete(item)">
+        <ion-icon name="trash"></ion-icon>
+        Löschen
+      </button>
+      <button icon-start ion-button [color]="item.isTask()?'dark':'light'" (click)="changeStatus(item)">
+        <ion-icon name="switch"></ion-icon>
+        {{
+        item.isTask()
+        ?'Off'
+        :'On'
+        }}
+      </button>
+    </ion-item-options>
+
+  </ion-item-sliding>
+
+
+</ion-list>

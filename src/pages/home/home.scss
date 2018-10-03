@@ -1,3 +1,15 @@
 page-home {
-
+    ion-item {
+        &.mainToolbar {
+            background-color: rgba(204, 227, 247, 0.85) !important;
+        }
+        div {
+            &.playButtons {
+                button {
+                    padding: 0px 10px;
+                    height: 30px;
+                }
+            }
+        }
+    }
 }
