@@ -3,7 +3,7 @@ import { List, NavController } from 'ionic-angular';
 
 import { Route } from '../../models/route';
 import { RouteFormPage } from '../../pages/route-form/route-form';
-import { RoutesProvider } from '../../providers/routes/routes';
+import { RoutesProvider } from '../../providers/routes';
 
 @Component({
   selector: 'route-liste',

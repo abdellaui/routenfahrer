@@ -9,11 +9,13 @@ import { IonicStorageModule } from '@ionic/storage';
 import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 
 import { ComponentsModule } from '../components/components.module';
+import { CustomSettingsPage } from '../pages/custom-settings/custom-settings';
 import { HomePage } from '../pages/home/home';
 import { RouteFormPage } from '../pages/route-form/route-form';
 import { RoutenMapPage } from '../pages/routen-map/routen-map';
 import { TabsPage } from '../pages/tabs/tabs';
-import { RoutesProvider } from '../providers/routes/routes';
+import { RoutesProvider } from '../providers/routes';
+import { SettingsProvider } from '../providers/settings';
 import { MyApp } from './app.component';
 
 @NgModule({
@@ -22,7 +24,8 @@ import { MyApp } from './app.component';
     HomePage,
     TabsPage,
     RouteFormPage,
-    RoutenMapPage
+    RoutenMapPage,
+    CustomSettingsPage
   ],
   imports: [
     BrowserModule,
@@ -36,16 +39,26 @@ import { MyApp } from './app.component';
     HomePage,
     TabsPage,
     RouteFormPage,
-    RoutenMapPage
+    RoutenMapPage,
+    CustomSettingsPage
   ],
   providers: [
     StatusBar,
     SplashScreen,
     Geolocation,
-    LaunchNavigator,
-    { provide: NativeGeocoder, useClass: NativeGeocoder },
     { provide: ErrorHandler, useClass: IonicErrorHandler },
-    RoutesProvider
+    SettingsProvider,
+    RoutesProvider,
+    /* */
+    LaunchNavigator,
+    NativeGeocoder
+    /* */
+    //
+
+    /*
+    { provide: LaunchNavigator, useClass: LaunchNavigatorMock },
+    { provide: NativeGeocoder, useClass: NativeGeocoderMock },
+    */
   ]
 })
 export class AppModule { }

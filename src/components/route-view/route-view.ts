@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-import { Route } from '../../models/route';
+import { Route } from '../../models/Route';
 
 @Component({
   selector: 'route-view',

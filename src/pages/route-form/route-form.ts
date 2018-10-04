@@ -9,9 +9,9 @@ import {
 } from '@ionic-native/native-geocoder';
 import { AlertController, LoadingController, NavController, NavParams } from 'ionic-angular';
 
-import { Address } from '../../models/address';
-import { Route } from '../../models/route';
-import { RoutesProvider } from '../../providers/routes/routes';
+import { Address } from '../../models/Address';
+import { Route } from '../../models/Route';
+import { RoutesProvider } from '../../providers/routes';
 
 declare var Object;
 
@@ -30,6 +30,7 @@ export class RouteFormPage {
   editing: boolean = false;
   showAddressSetting: boolean;
   currentRoute: Route;
+  subCoard: any;
 
   defaulCoard: any = { lat: 51.163375, lng: 10.447683 };
   geoOptions: NativeGeocoderOptions = {
@@ -65,7 +66,6 @@ export class RouteFormPage {
     private alertCtrl: AlertController,
     private nativeGeocoder: NativeGeocoder) {
 
-
     if (navParams.data instanceof Route) {
       this.currentRoute = navParams.data;
       this.defaulCoard = this.currentRoute.address.coards;
@@ -76,18 +76,17 @@ export class RouteFormPage {
     }
 
     this.searchInputValue = this.currentRoute.address.formattedAddress;
-    console.log(this.currentRoute.address);
   }
 
-  ionViewWillEnter() {
+  ionViewDidLoad() {
     let loading = this.loadingCtrl.create({
       content: 'Einen Moment bitte!'
     });
     loading.present();
 
     if (this.editing) {
-      this.initMapsAndSearch();
       loading.dismiss();
+      this.initMapsAndSearch();
 
     } else {
       this.geolocation.getCurrentPosition()
@@ -95,10 +94,21 @@ export class RouteFormPage {
           if (position.coords) {
             this.defaulCoard.lat = position.coords.latitude;
             this.defaulCoard.lng = position.coords.longitude;
+
           }
 
-          this.initMapsAndSearch();
           loading.dismiss();
+          this.initMapsAndSearch();
+
+          if (this.checkSearchString()) {
+            this.subCoard = this.geolocation.watchPosition().subscribe((data) => {
+              this.defaulCoard.lat = position.coords.latitude;
+              this.defaulCoard.lng = position.coords.longitude;
+              this.mapShowCoard(this.defaulCoard);
+            });
+          }
+
+
         }).catch(e => {
           loading.dismiss();
           this.initMapsAndSearch();
@@ -113,22 +123,39 @@ export class RouteFormPage {
 
   }
 
+  showSettingsChange(bool: boolean) {
+    if (this.subCoard) {
+      this.subCoard.unsubscribe();
+      this.subCoard = null;
+    }
+    this.showAddressSetting = bool;
+  }
+  ionViewWillLeave() {
+    this.mapDiv.nativeElement.className = "";
+  }
   initMapsAndSearch(): void {
+    this.mapDiv.nativeElement.className = "mapShow";
+    this.mapMap = GoogleMaps.create(this.mapDiv.nativeElement, {
+      camera: {
+        target: this.defaulCoard,
+        zoom: 15,
+        tilt: 30,
 
-    this.mapMap = GoogleMaps.create(this.mapDiv.nativeElement);
-    this.mapMarker = this.mapMap.addMarkerSync({
-      animation: 'DROP',
-      position: this.defaulCoard
+      }
     });
-    this.mapShowCoard(this.defaulCoard);
+    this.mapMap.addMarker({
+      animation: 'DROP',
+      flat: true,
+      icon: 'red',
+      position: this.defaulCoard
+    }).then((marker: Marker) => this.mapMarker);
 
     if (!this.checkSearchString()) {
-      this.showAddressSetting = true;
+      this.showSettingsChange(true);
     }
   }
 
   mapShowCoard(coards: any): void {
-
     this.mapMap.moveCamera({
       target: coards,
       zoom: 15,
@@ -142,7 +169,7 @@ export class RouteFormPage {
   resetAddress(): void {
     this.mapShowCoard(this.defaulCoard);
     this.currentRoute.address = new Address();
-    this.showAddressSetting = false;
+    this.showSettingsChange(false);
   }
 
   getInfoKeys(): string[] {
@@ -155,7 +182,6 @@ export class RouteFormPage {
 
   checkSearchString(): boolean {
     if (!this.searchInputValue) {
-      console.log(this.searchInputValue);
       this.lockPossibleAddresses = false;
       this.resetAddress();
       return true;
@@ -166,7 +192,6 @@ export class RouteFormPage {
 
   }
   onInputSearch() {
-    console.log(this.currentRoute.address);
     this.currentRoute.address.formattedAddress = this.searchInputValue;
     if (this.checkSearchString()) return;
     if (this.lockPossibleAddresses) return;
@@ -202,10 +227,13 @@ export class RouteFormPage {
         .then((coordinates: NativeGeocoderForwardResult[]) => {
 
           coordinates.forEach((coard: NativeGeocoderForwardResult) => {
+
+            console.log(JSON.stringify({ 'COARDS:': coard }));
             const lat = Number(coard.latitude);
             const lng = Number(coard.longitude);
             this.nativeGeocoder.reverseGeocode(lat, lng, this.geoOptions)
               .then((result: NativeGeocoderReverseResult[]) => {
+                console.log(JSON.stringify({ 'RESULT:': result }));
                 resolve(result.map((item: NativeGeocoderReverseResult) => {
                   const address: Address = Object.assign(new Address(), item);
                   address.coards = { lat, lng };
@@ -233,7 +261,7 @@ export class RouteFormPage {
       this.currentRoute.name = this.currentRoute.address.thoroughfare;
     this.mapShowCoard(this.currentRoute.address.coards);
 
-    this.showAddressSetting = true;
+    this.showSettingsChange(true);
   }
 
   validateInput(): boolean {

@@ -2,13 +2,13 @@
   <ion-toolbar>
     <ion-title>Routen</ion-title>
 
-    <ion-buttons start *ngIf="routesProvider.currentRoute">
+    <ion-buttons start *ngIf="routesProvider.getCount()">
       <button start ion-button (click)="switchReorder()">
         {{reordering?'Fertig':'Umsortieren'}}
       </button>
     </ion-buttons>
 
-    <ion-buttons end>
+    <ion-buttons end *ngIf="canCreate">
       <button ion-button (click)="createRoute()">
         Erstellen
       </button>
@@ -18,6 +18,13 @@
 </ion-header>
 
 <ion-content class="outer-content">
+
+  <ion-refresher (ionRefresh)="doRefresh($event)" [enabled]="!reordering">
+    <ion-refresher-content pullingIcon="arrow-dropdown" pullingText="Ziehe um Liste zurückzusetzen!" refreshingSpinner="circles"
+      refreshingText="Zurücksetzung...">
+    </ion-refresher-content>
+  </ion-refresher>
+
   <route-liste [reorder]="reordering"></route-liste>
 </ion-content>
 

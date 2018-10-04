@@ -4,7 +4,9 @@ import { Storage } from '@ionic/storage';
 import { AlertController, ToastController } from 'ionic-angular';
 import { ReorderIndexes } from 'ionic-angular/umd/components/item/item-reorder';
 
-import { Route } from '../../models/route';
+import { Address } from '../models/Address';
+import { Route } from '../models/Route';
+import { SettingsProvider } from './settings';
 
 /*
   Generated class for the RoutesProvider provider.
@@ -27,32 +29,31 @@ export class RoutesProvider {
     private storage: Storage,
     private toastCtrl: ToastController,
     private launchNavigator: LaunchNavigator,
-    private alertCtrl: AlertController) {
+    private alertCtrl: AlertController,
+    private settingsProvider: SettingsProvider) {
 
     this.storage.ready().then(() => {
 
-      this.storage.keys().then((result: any) => {
-        if (result.indexOf('currentRouteIndex') === -1) {
-          this.storeCurrentIndex();
-        }
-      });
 
       this.storage.get('routes').then((result: Route[]) => {
         if (!result) return;
-        const instances = result.map(item => { return Object.assign(new Route(), item) });
-        this.routes = instances;
+        const instances = result.map(item => {
+          const route = Object.assign(new Route(), item);
+          route.address = Object.assign(new Address(), item.address);
+          return route;
+        });
+        this.setRoutes(instances);
+        this.currentIndex = this.settingsProvider.configs.currentIndex;
       }).catch((e: Error) => {
         console.log(e);
       });
-
-      this.storage.get('currentRouteIndex').then((result: number) => {
-        const valCheck = (-1 < result && result < this.getCount()) ? result : 0;
-        this.setCurrentIndex(valCheck);
-      });
-
     });
   }
 
+  private setRoutes(routes: Route[]): void {
+    this.routes = routes;
+    this.refreshActiveRoutesCount();
+  }
   private setCurrentIndex(index: number): void {
     this.currentIndex = index;
     this.currentRoute = (this.checkIndex(this.currentIndex)) ? this.routes[this.currentIndex] : null;
@@ -60,7 +61,8 @@ export class RoutesProvider {
   }
 
   private storeCurrentIndex(): void {
-    this.storage.set('currentRouteIndex', this.currentIndex);
+    this.settingsProvider.configs.currentIndex = this.currentIndex;
+    this.settingsProvider.storeConfigs();
   }
 
   private refreshActiveRoutesCount(): void {
@@ -164,14 +166,21 @@ export class RoutesProvider {
     this.presentToastr('Route wurde erfolgreich erstellt!');
   }
 
+  reset(): void {
+    this.stop();
+    this.setCurrentIndex(this.findNextTask(-1, true));
+  }
 
-  prev(): void {
+  stop(): void {
     this.isPlaying = false;
-
+  }
+  prev(): void {
+    this.stop();
     this.setCurrentIndex(this.findNextTask(this.currentIndex, false));
   }
 
   next(): void {
+    this.stop();
     this.setCurrentIndex(this.findNextTask(this.currentIndex, true));
   }
 
@@ -188,10 +197,12 @@ export class RoutesProvider {
     }
   }
   start(): void {
-    if (!this.isPlaying)
+    if (!this.isPlaying) {
       this.startNaviOnCurrentRoute();
-
-    this.isPlaying = !this.isPlaying;
+      this.isPlaying = true;
+    } else {
+      this.stop();
+    }
   }
 
   startNaviOnCurrentRoute() {
