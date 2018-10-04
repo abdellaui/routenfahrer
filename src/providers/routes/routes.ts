@@ -15,6 +15,7 @@ import { Route } from '../../models/route';
 @Injectable()
 export class RoutesProvider {
 
+
   dummy: Route = new Route();
   currentRoute: Route = null;
   currentIndex: number = 0;
@@ -187,12 +188,14 @@ export class RoutesProvider {
     }
   }
   start(): void {
+    if (!this.isPlaying)
+      this.startNaviOnCurrentRoute();
+
     this.isPlaying = !this.isPlaying;
-    this.startNaviOnCurrentRoute();
   }
 
   startNaviOnCurrentRoute() {
-    this.launchNavigator.navigate(this.currentRoute.formattedAddress)
+    this.launchNavigator.navigate(this.currentRoute.address.formattedAddress)
       .then(
         success => console.log('Launched navigator'),
         error => console.log('Error launching navigator', error)

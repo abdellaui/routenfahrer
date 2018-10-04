@@ -1,27 +1,43 @@
 import { Component, ViewChild } from '@angular/core';
 import { Geolocation } from '@ionic-native/geolocation';
-import { AlertController, Item, LoadingController, NavController, NavParams, TextInput } from 'ionic-angular';
+import { GoogleMap, GoogleMaps, Marker } from '@ionic-native/google-maps';
+import {
+  NativeGeocoder,
+  NativeGeocoderForwardResult,
+  NativeGeocoderOptions,
+  NativeGeocoderReverseResult,
+} from '@ionic-native/native-geocoder';
+import { AlertController, LoadingController, NavController, NavParams } from 'ionic-angular';
 
+import { Address } from '../../models/address';
 import { Route } from '../../models/route';
 import { RoutesProvider } from '../../providers/routes/routes';
 
-declare var google;
 declare var Object;
+
 @Component({
   selector: 'page-route-form',
   templateUrl: 'route-form.html'
 })
 export class RouteFormPage {
-  @ViewChild('sInput') searchInput: TextInput;
-  @ViewChild('sMap') map: Item;
+  @ViewChild('sMap') mapDiv: any;
 
+  mapMap: GoogleMap
+  mapMarker: Marker;
+  searchInputValue: string;
+  lockPossibleAddresses: boolean = false;
+  possibleAddresses: Address[];
   editing: boolean = false;
   showAddressSetting: boolean;
-  defaulCoard: any = { lat: 51.163375, lng: 10.447683 };
   currentRoute: Route;
-  mapLoad: any;
-  mapMarker: any;
-  mapCircle: any;
+
+  defaulCoard: any = { lat: 51.163375, lng: 10.447683 };
+  geoOptions: NativeGeocoderOptions = {
+    useLocale: true,
+    defaultLocale: 'de_DE',
+    maxResults: 5
+  }
+
   readonly dayFullname: any = {
     Mo: 'Montag',
     Di: 'Dienstag',
@@ -33,11 +49,11 @@ export class RouteFormPage {
   }
 
   readonly addressInfos: any = {
-    route: 'Straße *',
-    street_number: 'Hausnummer',
-    postal_code: 'PLZ',
+    thoroughfare: 'Straße *',
+    subThoroughfare: 'Hausnummer',
+    postalCode: 'PLZ',
     locality: 'Stadt *',
-    country: 'Land'
+    countryName: 'Land'
   };
 
   constructor(
@@ -46,17 +62,21 @@ export class RouteFormPage {
     private routesProvider: RoutesProvider,
     private geolocation: Geolocation,
     private loadingCtrl: LoadingController,
-    private alertCtrl: AlertController) {
+    private alertCtrl: AlertController,
+    private nativeGeocoder: NativeGeocoder) {
 
 
     if (navParams.data instanceof Route) {
       this.currentRoute = navParams.data;
-      this.defaulCoard = this.currentRoute.coards;
+      this.defaulCoard = this.currentRoute.address.coards;
       this.editing = true;
     } else {
       this.currentRoute = routesProvider.getDummy();
+
     }
 
+    this.searchInputValue = this.currentRoute.address.formattedAddress;
+    console.log(this.currentRoute.address);
   }
 
   ionViewWillEnter() {
@@ -94,72 +114,34 @@ export class RouteFormPage {
   }
 
   initMapsAndSearch(): void {
-    let mapDiv = this.map._elementRef.nativeElement;
 
-
-
-    this.mapCircle = new google.maps.Circle({
-      center: this.defaulCoard,
-      radius: 33
+    this.mapMap = GoogleMaps.create(this.mapDiv.nativeElement);
+    this.mapMarker = this.mapMap.addMarkerSync({
+      animation: 'DROP',
+      position: this.defaulCoard
     });
+    this.mapShowCoard(this.defaulCoard);
 
-    this.mapLoad = new google.maps.Map(mapDiv, {
-      center: this.defaulCoard,
-      zoom: 16
-    });
-
-    this.mapMarker = new google.maps.Marker({
-      map: this.mapLoad,
-      anchorPoint: new google.maps.Point(0, -29)
-    });
-
-
-    this.mapMarker.setPosition(this.defaulCoard);
-
-    this.showAddressSetting = (this.currentRoute.formattedAddress) ? true : false;
-
-    let searchInputNative = this.searchInput._native.nativeElement;
-    let autocomplete = new google.maps.places.Autocomplete(
-      searchInputNative,
-      {
-        types: ['address'],
-        componentRestrictions: { country: ['de', 'nl', 'fr', 'be', 'pl', 'ch', 'lu', 'at', 'cz', 'dk'] }
-      }
-    );
-    autocomplete.setBounds(this.mapCircle.getBounds());
-
-    autocomplete.addListener('place_changed', () => {
-      const place = autocomplete.getPlace();
-
-      if (!place.address_components) return;
-
-      const currentCoards = {
-        lat: place.geometry.location.lat(),
-        lng: place.geometry.location.lng()
-      };
-
-      this.mapShowCoard(currentCoards);
-
-
-      this.currentRoute.coards = currentCoards;
-      this.currentRoute.formattedAddress = place.formatted_address;
-      this.currentRoute.name = place.name;
-      this.setAddressSettings(place.address_components);
-
-    });
+    if (!this.checkSearchString()) {
+      this.showAddressSetting = true;
+    }
   }
 
   mapShowCoard(coards: any): void {
-    this.mapMarker.setVisible(false);
 
-    this.mapLoad.setCenter(coards);
+    this.mapMap.moveCamera({
+      target: coards,
+      zoom: 15,
+      tilt: 30
+    });
+
 
     this.mapMarker.setPosition(coards);
-    this.mapMarker.setVisible(true);
 
   }
   resetAddress(): void {
     this.mapShowCoard(this.defaulCoard);
+    this.currentRoute.address = new Address();
     this.showAddressSetting = false;
   }
 
@@ -168,44 +150,98 @@ export class RouteFormPage {
   }
 
   clearRouteAddress(): void {
-    this.currentRoute.coards = { lat: 0.0, lng: 0.0 };
-    for (let key of this.getInfoKeys()) {
-      this.currentRoute.address[key] = '';
-    }
+    this.currentRoute.address = new Address();
   }
-  onChange(): void {
 
-    console.log(this.currentRoute.formattedAddress);
-    if (!this.currentRoute.formattedAddress) {
+  checkSearchString(): boolean {
+    if (!this.searchInputValue) {
+      console.log(this.searchInputValue);
+      this.lockPossibleAddresses = false;
       this.resetAddress();
+      return true;
+    } else {
+      this.currentRoute.address.generateFormatedAdress();
+      return false;
     }
-
-    this.currentRoute.formattedAddress = Object.values(this.currentRoute.address).filter(x => x).join(', ');
 
   }
+  onInputSearch() {
+    console.log(this.currentRoute.address);
+    this.currentRoute.address.formattedAddress = this.searchInputValue;
+    if (this.checkSearchString()) return;
+    if (this.lockPossibleAddresses) return;
+    //this.currentRoute.formattedAddress = Object.values(this.currentRoute.address).filter(x => x).join(', ');
 
-  setAddressSettings(address: any): void {
-    this.clearRouteAddress();
-    const mapper: any = {
-      route: 'long_name',
-      street_number: 'short_name',
-      locality: 'long_name',
-      country: 'long_name',
-      postal_code: 'short_name'
-    };
+    this.geocodeAddress()
+      .then((result: Address[]) => {
+        this.possibleAddresses = result;
 
-    for (var i = 0; i < address.length; i++) {
-      let addressType = address[i].types[0];
-      if (mapper[addressType]) {
-        this.currentRoute.address[addressType] = address[i][mapper[addressType]];
-      }
-    }
+      }).catch((error: any) => console.log(JSON.stringify(error)));
+  }
+
+
+  onChangeProps(): void {
+    this.searchInputValue = this.currentRoute.address.formattedAddress;
+    this.lockPossibleAddresses = false;
+
+    if (this.checkSearchString()) return;
+    this.geocodeAddress()
+      .then((result: Address[]) => {
+
+        if (result.length === 1)
+          this.mapShowCoard(result[0].coards)
+
+      })
+      .catch((error: any) => console.log(JSON.stringify(error)));
+  }
+
+  geocodeAddress(): Promise<Address[]> {
+    return new Promise((resolve, reject) => {
+
+      this.nativeGeocoder.forwardGeocode(this.searchInputValue, this.geoOptions)
+        .then((coordinates: NativeGeocoderForwardResult[]) => {
+
+          coordinates.forEach((coard: NativeGeocoderForwardResult) => {
+            const lat = Number(coard.latitude);
+            const lng = Number(coard.longitude);
+            this.nativeGeocoder.reverseGeocode(lat, lng, this.geoOptions)
+              .then((result: NativeGeocoderReverseResult[]) => {
+                resolve(result.map((item: NativeGeocoderReverseResult) => {
+                  const address: Address = Object.assign(new Address(), item);
+                  address.coards = { lat, lng };
+                  address.generateFormatedAdress();
+                  return address;
+                }));
+              }).catch((error: any) => { reject(error) });
+
+          });
+        }).catch((error: any) => reject(error));
+    });
+  }
+
+  addressSelected(address: Address) {
+    this.lockPossibleAddresses = true;
+    this.possibleAddresses = null;
+    this.setAddressSettings(address);
+    this.lockPossibleAddresses = true;
+  }
+
+  setAddressSettings(address: Address): void {
+    this.searchInputValue = address.formattedAddress;
+    this.currentRoute.address = address;
+    if (!this.currentRoute.name)
+      this.currentRoute.name = this.currentRoute.address.thoroughfare;
+    this.mapShowCoard(this.currentRoute.address.coards);
 
     this.showAddressSetting = true;
   }
 
   validateInput(): boolean {
-    return (this.showAddressSetting && this.currentRoute.name && this.currentRoute.address.route && this.currentRoute.address.locality)
+    return (
+      this.showAddressSetting &&
+      Boolean(this.currentRoute.name) &&
+      this.currentRoute.address.validateInput()
+    );
   }
   storeInput(): void {
 

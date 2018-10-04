@@ -1,3 +1,5 @@
+import { Address } from './address';
+
 export class Route {
   public id: number;
   public name: string;
@@ -14,22 +16,11 @@ export class Route {
     So: false
   }
 
-  public coards: any = {
-    lat: 0.0,
-    lng: 0.0
-  }
 
-  public formattedAddress: string;
+  public address: Address;
 
-  public address: any = {
-    route: '',
-    street_number: '',
-    postal_code: '',
-    locality: '',
-    country: ''
-  }
-
-  constructor() {
+  constructor(parent?: Address) {
+    this.address = (parent) ? parent : new Address();
     this.id = new Date().getTime();
   };
 

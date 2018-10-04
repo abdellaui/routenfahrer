@@ -10,14 +10,18 @@
 <ion-content class="outer-content">
 
 
-  <ion-list>
-    <ion-item>
-      <ion-label color="primary" stacked>Suche</ion-label>
-      <ion-input #sInput placeholder="Adresssuche beginnen" clearInput (ionChange)="onChange()" [(ngModel)]="currentRoute.formattedAddress"></ion-input>
-    </ion-item>
 
-    <ion-item ion-item class="mapShow" #sMap>
-    </ion-item>
+  <ion-searchbar placeholder="Adresssuche beginnen" [(ngModel)]="searchInputValue" (ionInput)="onInputSearch()">
+  </ion-searchbar>
+
+  <ion-list>
+    <div *ngIf="possibleAddresses">
+      <ion-item *ngFor="let address of possibleAddresses" (click)="addressSelected(address)">
+        {{address.formattedAddress}}
+      </ion-item>
+    </div>
+    <div class="mapShow" id="sMap" #sMap>
+    </div>
 
     <div *ngIf="showAddressSetting">
       <ion-item-divider color="light">Konfiguration</ion-item-divider>
@@ -27,7 +31,7 @@
       </ion-item>
       <ion-item *ngFor="let info of getInfoKeys()">
         <ion-label color="primary" fixed>{{ addressInfos[info] }}</ion-label>
-        <ion-input placeholder="{{ addressInfos[info] }} eingeben" (ionChange)="onChange()" [(ngModel)]="currentRoute.address[info]"
+        <ion-input placeholder="{{ addressInfos[info] }} eingeben" (ionChange)="onChangeProps()" [(ngModel)]="currentRoute.address[info]"
           clearInput></ion-input>
       </ion-item>
       <ion-item>
