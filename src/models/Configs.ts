@@ -1,4 +1,4 @@
 export class Configs {
   currentIndex: number = 0;
-  showTaskOnly: boolean = true;
+  showTaskOnly: boolean = false;
 }

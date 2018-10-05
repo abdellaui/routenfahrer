@@ -18,22 +18,27 @@ export class CustomSettingsPage {
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
-    public launchNavigator: LaunchNavigator,
+    private launchNavigator: LaunchNavigator,
     public settingsProvider: SettingsProvider,
     public routesProvider: RoutesProvider,
     public toastCtrl: ToastController) {
     console.log(settingsProvider.configs);
 
     new Promise<string>((resolve) => {
+      console.log('us', JSON.stringify(this.launchNavigator.APP));
       this.launchNavigator.appSelection.userChoice.get(function (app) {
+        console.log('userChoice', app);
         resolve(app);
       });
     }).then((result: string) => { this.selectedNavApp = result });
 
     this.launchNavigator.availableApps().then((result: string[]) => {
+      console.log('OO', result);
       this.aviableNavApp = result.map((el: string) => {
         return new NavigationApp(el, this.launchNavigator.getAppDisplayName(el));
       });
+    }).catch(e => {
+      //console.log('#########', e);
     });
   }
 

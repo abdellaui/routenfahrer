@@ -31,7 +31,7 @@
       Ansicht: Routen
     </ion-list-header>
     <ion-item>
-      <ion-label>Neu heutige Routen anzeigen</ion-label>
+      <ion-label>Nur zufahrende Routen anzeigen</ion-label>
       <ion-toggle color="secondary" [checked]="settingsProvider.configs.showTaskOnly" (ionChange)="settingsProvider.toggleShowTaskOnly()"></ion-toggle>
     </ion-item>
   </ion-list>
@@ -42,8 +42,8 @@
     </ion-list-header>
 
     <ion-item *ngIf="!aviableNavApp">
-      Keine Navigation-Anwendungenn verfügbar!
-      <p>Installieren Sie verbreitete Navigationen!</p>
+      Keine Navigationsanwendungen verfügbar!
+      <p>Installieren Sie gängige Navigationen!</p>
     </ion-item>
 
     <ion-item *ngFor="let nav of aviableNavApp">

@@ -4,6 +4,7 @@ import { List, NavController } from 'ionic-angular';
 import { Route } from '../../models/route';
 import { RouteFormPage } from '../../pages/route-form/route-form';
 import { RoutesProvider } from '../../providers/routes';
+import { SettingsProvider } from '../../providers/settings';
 
 @Component({
   selector: 'route-liste',
@@ -14,7 +15,8 @@ export class RouteListeComponent {
 
   @ViewChild('listOfRoutes', { read: List }) listView: List;
 
-  constructor(public routesProvider: RoutesProvider, private navCtrl: NavController) {
+  constructor(public routesProvider: RoutesProvider, private navCtrl: NavController,
+    public settingsProvider: SettingsProvider) {
   }
 
   edit(item: Route) {

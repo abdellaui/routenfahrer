@@ -1,4 +1,9 @@
 route-liste {
+    ion-item-sliding {
+        &.hide {
+            display: none
+        }
+    }
     ion-item-options {
         button {
             width: 90px;

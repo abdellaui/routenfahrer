@@ -4,9 +4,11 @@
 <ion-list #listOfRoutes *ngIf="routesProvider.routes.length" [reorder]="canReorder" (ionItemReorder)="this.routesProvider.reorderRoutes($event)">
 
 
-  <ion-item-sliding *ngFor="let item of routesProvider.routes; let itemIndex = index">
+  <ion-item-sliding *ngFor="let item of routesProvider.routes; let itemIndex = index" [class]="(settingsProvider.configs.showTaskOnly && !item.isTask() && !canReorder)
+?'hide'
+:''
+">
     <ion-item text-wrap>
-
       <ion-icon item-start *ngIf="item.isTask()" [name]="item.done
                   ?'arrow-down'
                   :'arrow-forward'">
@@ -15,7 +17,7 @@
       <route-view [route]="item"></route-view>
     </ion-item>
 
-    <ion-item-options side="left">
+    <ion-item-options side="left" *ngIf="!canReorder">
       <button icon-start ion-button color="secondary" (click)="play(itemIndex)">
         <ion-icon name="play"></ion-icon>
         Starten
@@ -26,7 +28,7 @@
       </button>
     </ion-item-options>
 
-    <ion-item-options side="right">
+    <ion-item-options side="right" *ngIf="!canReorder">
       <button icon-start ion-button color="danger" (click)="delete(item)">
         <ion-icon name="trash"></ion-icon>
         Löschen

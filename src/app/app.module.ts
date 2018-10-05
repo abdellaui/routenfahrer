@@ -18,6 +18,7 @@ import { RoutesProvider } from '../providers/routes';
 import { SettingsProvider } from '../providers/settings';
 import { MyApp } from './app.component';
 
+
 @NgModule({
   declarations: [
     MyApp,
@@ -49,16 +50,17 @@ import { MyApp } from './app.component';
     { provide: ErrorHandler, useClass: IonicErrorHandler },
     SettingsProvider,
     RoutesProvider,
+
     /* */
-    LaunchNavigator,
-    NativeGeocoder
-    /* */
-    //
+    { provide: LaunchNavigator, useClass: LaunchNavigator },
+    { provide: NativeGeocoder, useClass: NativeGeocoder },
+    /**/
 
     /*
     { provide: LaunchNavigator, useClass: LaunchNavigatorMock },
     { provide: NativeGeocoder, useClass: NativeGeocoderMock },
-    */
+    /**/
   ]
 })
-export class AppModule { }
+export class AppModule {
+}

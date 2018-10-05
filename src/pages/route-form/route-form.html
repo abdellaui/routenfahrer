@@ -24,7 +24,7 @@
   </div>
 
   <ion-list *ngIf="showAddressSetting">
-    <ion-list-header color="light">
+    <ion-list-header>
       Konfiguration
     </ion-list-header>
     <ion-item>
@@ -43,7 +43,7 @@
   </ion-list>
 
   <ion-list *ngIf="showAddressSetting">
-    <ion-list-header color="light">
+    <ion-list-header>
       Wiederholung
     </ion-list-header>
     <ion-item *ngFor="let day of currentRoute.dayKeys()">

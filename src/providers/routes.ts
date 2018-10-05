@@ -66,7 +66,7 @@ export class RoutesProvider {
   }
 
   private refreshActiveRoutesCount(): void {
-    this._activeRoutesCount = this.routes.filter((item: Route) => { return item.isTask }).length;
+    this._activeRoutesCount = this.routes.filter((item: Route) => { return item.isTask() }).length;
   }
 
   private storeRoutes(): void {

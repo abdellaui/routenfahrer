@@ -19,17 +19,21 @@ export class Route {
 
   public address: Address;
 
+
   constructor(parent?: Address) {
     this.address = (parent) ? parent : new Address();
     this.id = new Date().getTime();
   };
 
   dayKeys(): string[] {
-    return ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+    return Object.keys(this.activeDays);
   }
 
+  getWeekDay(): number {
+    return (new Date().getDay() + 6) % 7;
+  }
   isTodayTask(): boolean {
-    return this.activeDays[this.dayKeys()[(new Date()).getDay()]];
+    return this.activeDays[this.dayKeys()[this.getWeekDay()]];
   }
 
   isTask(): boolean {

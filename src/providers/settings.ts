@@ -25,7 +25,7 @@ export class SettingsProvider {
 
 
   toggleShowTaskOnly() {
-    this.configs.showTaskOnly != this.configs.showTaskOnly;
+    this.configs.showTaskOnly = !this.configs.showTaskOnly;
     this.storeConfigs();
   }
   storeConfigs(): void {

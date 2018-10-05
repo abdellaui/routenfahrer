@@ -32,7 +32,7 @@ export class RouteFormPage {
   currentRoute: Route;
   subCoard: any;
 
-  defaulCoard: any = { lat: 51.163375, lng: 10.447683 };
+  defaultCoard: any = { lat: 51.163375, lng: 10.447683 };
   geoOptions: NativeGeocoderOptions = {
     useLocale: true,
     defaultLocale: 'de_DE',
@@ -68,7 +68,7 @@ export class RouteFormPage {
 
     if (navParams.data instanceof Route) {
       this.currentRoute = navParams.data;
-      this.defaulCoard = this.currentRoute.address.coards;
+      this.defaultCoard = this.currentRoute.address.coards;
       this.editing = true;
     } else {
       this.currentRoute = routesProvider.getDummy();
@@ -78,13 +78,13 @@ export class RouteFormPage {
     this.searchInputValue = this.currentRoute.address.formattedAddress;
   }
 
-  ionViewDidLoad() {
+  ionViewWillEnter() {
     let loading = this.loadingCtrl.create({
       content: 'Einen Moment bitte!'
     });
     loading.present();
 
-    if (this.editing) {
+    if (this.editing || this.searchInputValue) {
       loading.dismiss();
       this.initMapsAndSearch();
 
@@ -92,21 +92,23 @@ export class RouteFormPage {
       this.geolocation.getCurrentPosition()
         .then((position) => {
           if (position.coords) {
-            this.defaulCoard.lat = position.coords.latitude;
-            this.defaulCoard.lng = position.coords.longitude;
+            this.defaultCoard.lat = position.coords.latitude;
+            this.defaultCoard.lng = position.coords.longitude;
 
           }
 
           loading.dismiss();
           this.initMapsAndSearch();
 
-          if (this.checkSearchString()) {
-            this.subCoard = this.geolocation.watchPosition().subscribe((data) => {
-              this.defaulCoard.lat = position.coords.latitude;
-              this.defaulCoard.lng = position.coords.longitude;
-              this.mapShowCoard(this.defaulCoard);
-            });
-          }
+
+          this.subCoard = this.geolocation.watchPosition().subscribe((data) => {
+            if (data.coords === undefined) return;
+            this.defaultCoard.lat = position.coords.latitude;
+            this.defaultCoard.lng = position.coords.longitude;
+            if (this.mapMap)
+              this.mapShowCoard(this.defaultCoard);
+          });
+
 
 
         }).catch(e => {
@@ -137,18 +139,21 @@ export class RouteFormPage {
     this.mapDiv.nativeElement.className = "mapShow";
     this.mapMap = GoogleMaps.create(this.mapDiv.nativeElement, {
       camera: {
-        target: this.defaulCoard,
+        target: this.defaultCoard,
         zoom: 15,
         tilt: 30,
-
       }
     });
     this.mapMap.addMarker({
       animation: 'DROP',
       flat: true,
       icon: 'red',
-      position: this.defaulCoard
-    }).then((marker: Marker) => this.mapMarker);
+      position: this.defaultCoard
+    }).then((marker: Marker) => {
+      this.mapMarker = marker;
+    }).catch(e => {
+      console.log(e);
+    });
 
     if (!this.checkSearchString()) {
       this.showSettingsChange(true);
@@ -156,18 +161,22 @@ export class RouteFormPage {
   }
 
   mapShowCoard(coards: any): void {
+
     this.mapMap.moveCamera({
       target: coards,
       zoom: 15,
       tilt: 30
+    }).then(() => {
+      this.mapMarker.setPosition(coards);
+    }).catch(e => {
+      console.log(e);
     });
 
 
-    this.mapMarker.setPosition(coards);
 
   }
   resetAddress(): void {
-    this.mapShowCoard(this.defaulCoard);
+    this.mapShowCoard(this.defaultCoard);
     this.currentRoute.address = new Address();
     this.showSettingsChange(false);
   }
@@ -192,22 +201,25 @@ export class RouteFormPage {
 
   }
   onInputSearch() {
+    console.log('yes');
     this.currentRoute.address.formattedAddress = this.searchInputValue;
     if (this.checkSearchString()) return;
-    if (this.lockPossibleAddresses) return;
-    //this.currentRoute.formattedAddress = Object.values(this.currentRoute.address).filter(x => x).join(', ');
-
+    if (this.lockPossibleAddresses) return (this.lockPossibleAddresses = false);
+    this.lockPossibleAddresses = true;
     this.geocodeAddress()
       .then((result: Address[]) => {
+        this.lockPossibleAddresses = false;
         this.possibleAddresses = result;
-
-      }).catch((error: any) => console.log(JSON.stringify(error)));
+      }).catch((error: any) => {
+        this.lockPossibleAddresses = false;
+        console.log(JSON.stringify(error));
+      }
+      );
   }
 
 
   onChangeProps(): void {
     this.searchInputValue = this.currentRoute.address.formattedAddress;
-    this.lockPossibleAddresses = false;
 
     if (this.checkSearchString()) return;
     this.geocodeAddress()
@@ -216,8 +228,11 @@ export class RouteFormPage {
         if (result.length === 1)
           this.mapShowCoard(result[0].coards)
 
+
       })
-      .catch((error: any) => console.log(JSON.stringify(error)));
+      .catch((error: any) => {
+        console.log(JSON.stringify(error))
+      });
   }
 
   geocodeAddress(): Promise<Address[]> {
@@ -226,14 +241,20 @@ export class RouteFormPage {
       this.nativeGeocoder.forwardGeocode(this.searchInputValue, this.geoOptions)
         .then((coordinates: NativeGeocoderForwardResult[]) => {
 
+          /*console.log(JSON.stringify({
+            'COARDS:': coordinates.length,
+            '_': coordinates
+          }));*/
           coordinates.forEach((coard: NativeGeocoderForwardResult) => {
 
-            console.log(JSON.stringify({ 'COARDS:': coard }));
             const lat = Number(coard.latitude);
             const lng = Number(coard.longitude);
             this.nativeGeocoder.reverseGeocode(lat, lng, this.geoOptions)
               .then((result: NativeGeocoderReverseResult[]) => {
-                console.log(JSON.stringify({ 'RESULT:': result }));
+                /*console.log(JSON.stringify({
+                  'RESULT:': result.length,
+                  '_': result
+                }));*/
                 resolve(result.map((item: NativeGeocoderReverseResult) => {
                   const address: Address = Object.assign(new Address(), item);
                   address.coards = { lat, lng };
@@ -248,10 +269,8 @@ export class RouteFormPage {
   }
 
   addressSelected(address: Address) {
-    this.lockPossibleAddresses = true;
     this.possibleAddresses = null;
     this.setAddressSettings(address);
-    this.lockPossibleAddresses = true;
   }
 
   setAddressSettings(address: Address): void {

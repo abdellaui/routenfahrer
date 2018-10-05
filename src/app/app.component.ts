@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Environment } from '@ionic-native/google-maps';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
 import { Platform } from 'ionic-angular';
@@ -17,6 +18,10 @@ export class MyApp {
       // Here you can do any higher level native things you might need.
       statusBar.styleDefault();
       splashScreen.hide();
+      Environment.setEnv({
+        'API_KEY_FOR_BROWSER_RELEASE': 'AIzaSyAKK991AzhbVbZWSrv-52YGlsMaEzlHqpA',
+        'API_KEY_FOR_BROWSER_DEBUG': 'AIzaSyAKK991AzhbVbZWSrv-52YGlsMaEzlHqpA'
+      });
     });
   }
 }
