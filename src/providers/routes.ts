@@ -43,7 +43,7 @@ export class RoutesProvider {
           return route;
         });
         this.setRoutes(instances);
-        this.currentIndex = this.settingsProvider.configs.currentIndex;
+        this.setCurrentIndex(this.settingsProvider.configs.currentIndex);
       }).catch((e: Error) => {
         console.log(e);
       });

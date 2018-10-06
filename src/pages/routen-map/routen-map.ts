@@ -1,7 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Geolocation } from '@ionic-native/geolocation';
 import { GoogleMap, GoogleMaps, Marker, MarkerOptions } from '@ionic-native/google-maps';
-import { AlertController, LoadingController, NavController } from 'ionic-angular';
+import { AlertController, Loading, LoadingController, NavController } from 'ionic-angular';
 
 import { Route } from '../../models/Route';
 import { RoutesProvider } from '../../providers/routes';
@@ -16,19 +16,19 @@ export class RoutenMapPage {
   defaultCoard: any = { lat: 51.163375, lng: 10.447683 };
   mapMap: GoogleMap;
   markMe: Marker;
-
+  loading: Loading;
   constructor(public navCtrl: NavController,
     private geolocation: Geolocation,
     private alertCtrl: AlertController,
     private loadingCtrl: LoadingController,
     private routesProvider: RoutesProvider) {
+    this.loading = this.loadingCtrl.create({
+      content: 'Einen Moment bitte!'
+    });
+    this.loading.present();
   }
 
   ionViewDidLoad() {
-    let loading = this.loadingCtrl.create({
-      content: 'Einen Moment bitte!'
-    });
-    loading.present();
 
 
     this.geolocation.getCurrentPosition()
@@ -39,7 +39,7 @@ export class RoutenMapPage {
         }
 
         this.initMap();
-        loading.dismiss();
+        this.loading.dismiss();
 
         this.geolocation.watchPosition()
           .subscribe((data) => {
@@ -50,7 +50,7 @@ export class RoutenMapPage {
 
           });
       }).catch(e => {
-        loading.dismiss();
+        this.loading.dismiss();
         this.initMap();
         let alert = this.alertCtrl.create({
           title: 'Hinweis',
@@ -64,6 +64,7 @@ export class RoutenMapPage {
 
 
   ionViewWillEnter() {
+    if (!this.mapMap) return;
     this.mapMap.clear();
     this.mapMap.moveCamera({
       target: this.defaultCoard,

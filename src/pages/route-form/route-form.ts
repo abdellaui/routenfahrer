@@ -134,6 +134,7 @@ export class RouteFormPage {
   }
   ionViewWillLeave() {
     this.mapDiv.nativeElement.className = "";
+    this.navCtrl.popToRoot();
   }
   initMapsAndSearch(): void {
     this.mapDiv.nativeElement.className = "mapShow";

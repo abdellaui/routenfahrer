@@ -22,10 +22,12 @@ export class CustomSettingsPage {
     public settingsProvider: SettingsProvider,
     public routesProvider: RoutesProvider,
     public toastCtrl: ToastController) {
-    console.log(settingsProvider.configs);
 
+
+  }
+
+  ionViewDidLoad() {
     new Promise<string>((resolve) => {
-      console.log('us', JSON.stringify(this.launchNavigator.APP));
       this.launchNavigator.appSelection.userChoice.get(function (app) {
         console.log('userChoice', app);
         resolve(app);
@@ -38,10 +40,9 @@ export class CustomSettingsPage {
         return new NavigationApp(el, this.launchNavigator.getAppDisplayName(el));
       });
     }).catch(e => {
-      //console.log('#########', e);
+      console.log('#########', e);
     });
   }
-
   onSelectNav(): void {
     this.launchNavigator.appSelection.userChoice.set(this.selectedNavApp, () => {
       this.toastCtrl.create({
@@ -51,8 +52,6 @@ export class CustomSettingsPage {
       }).present();
     });
   }
-  ionViewDidLoad() {
-    console.log('ionViewDidLoad CustomSettingsPage');
-  }
+
 
 }
