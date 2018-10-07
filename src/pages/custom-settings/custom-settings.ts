@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { LaunchNavigator } from '@ionic-native/launch-navigator';
-import { NavController, NavParams, ToastController } from 'ionic-angular';
+import { AlertController, NavController, NavParams } from 'ionic-angular';
 
 import { NavigationApp } from '../../models/NavigationApp';
 import { RoutesProvider } from '../../providers/routes';
@@ -18,39 +18,72 @@ export class CustomSettingsPage {
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
-    private launchNavigator: LaunchNavigator,
+    public launchNavigator: LaunchNavigator,
     public settingsProvider: SettingsProvider,
     public routesProvider: RoutesProvider,
-    public toastCtrl: ToastController) {
+    public alertCtrl: AlertController) {
 
-
-  }
-
-  ionViewDidLoad() {
-    new Promise<string>((resolve) => {
-      this.launchNavigator.appSelection.userChoice.get(function (app) {
-        console.log('userChoice', app);
-        resolve(app);
-      });
-    }).then((result: string) => { this.selectedNavApp = result });
 
     this.launchNavigator.availableApps().then((result: string[]) => {
-      console.log('OO', result);
-      this.aviableNavApp = result.map((el: string) => {
-        return new NavigationApp(el, this.launchNavigator.getAppDisplayName(el));
-      });
+      this.aviableNavApp = [];
+      for (let nav in result) {
+        if (result[nav]) {
+          this.aviableNavApp.push(new NavigationApp(nav, this.launchNavigator.getAppDisplayName(nav)));
+        }
+      }
     }).catch(e => {
       console.log('#########', e);
     });
   }
-  onSelectNav(): void {
-    this.launchNavigator.appSelection.userChoice.set(this.selectedNavApp, () => {
-      this.toastCtrl.create({
-        message: 'Navigation wurde erfolgreich geändert!',
-        duration: 3000,
-        position: 'top'
-      }).present();
+
+  ionViewWillEnter() {
+    window['launchnavigator'].appSelection.userChoice.exists((exists) => {
+      if (exists) {
+        this.getSelectedNavApp();
+      } else {
+        window['launchnavigator'].appSelection.userPrompted.clear(() => {
+          console.log("Clear flag indicating whether user chose to remember their choice of navigator app");
+        });
+      }
     });
+  }
+  getSelectedNavApp(): void {
+    window['launchnavigator'].appSelection.userChoice.get((app) => { this.setSelectedNavApp(app) });
+  }
+  setSelectedNavApp(app: string): void {
+    if (!app) return;
+    this.selectedNavApp = app;
+  }
+
+  onSelectNav(navKey: string): void {
+    if (this.selectedNavApp === navKey) return;
+    this.selectedNavApp = navKey;
+    window['launchnavigator'].appSelection.userChoice.set(this.selectedNavApp, () => {
+      this.routesProvider.presentToastr('Navigation wurde erfolgreich geändert!');
+    });
+  }
+
+
+  deleteAllRoutes(): void {
+    this.alertCtrl.create({
+      title: 'Achtung',
+      message: 'Sie löschen alle Routen! Dieser Schritt kann  nicht rückgängig gemacht werden!',
+      buttons: [
+        {
+          text: 'Abbrechen',
+          role: 'cancel',
+          handler: () => {
+            console.log('Cancel clicked');
+          }
+        },
+        {
+          text: 'Ok',
+          handler: () => {
+            this.routesProvider.deleteAllRoutes();
+          }
+        }
+      ]
+    }).present();
   }
 
 

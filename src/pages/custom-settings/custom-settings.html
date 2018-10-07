@@ -28,14 +28,18 @@
 
   <ion-list>
     <ion-list-header>
-      Ansicht: Routen
+      Routen
     </ion-list-header>
     <ion-item>
       <ion-label>Nur zufahrende Routen anzeigen</ion-label>
       <ion-toggle color="secondary" [checked]="settingsProvider.configs.showTaskOnly" (ionChange)="settingsProvider.toggleShowTaskOnly()"></ion-toggle>
     </ion-item>
+
+    <button ion-item (click)="deleteAllRoutes()" class="delBtn" detail-none>
+      Alle Routen löschen
+    </button>
   </ion-list>
-  <ion-list radio-group [(ngModel)]="selectedNavApp" (ionChange)="onSelectNav()">
+  <ion-list radio-group [ngModel]="selectedNavApp">
 
     <ion-list-header>
       Navigation
@@ -48,7 +52,7 @@
 
     <ion-item *ngFor="let nav of aviableNavApp">
       <ion-label>{{nav.name}}</ion-label>
-      <ion-radio [value]="nav.key"></ion-radio>
+      <ion-radio [value]="nav.key" (ionSelect)="onSelectNav(nav.key)"></ion-radio>
     </ion-item>
 
   </ion-list>

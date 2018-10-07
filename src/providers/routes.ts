@@ -8,12 +8,6 @@ import { Address } from '../models/Address';
 import { Route } from '../models/Route';
 import { SettingsProvider } from './settings';
 
-/*
-  Generated class for the RoutesProvider provider.
-
-  See https://angular.io/guide/dependency-injection for more info on providers
-  and Angular DI.
-*/
 @Injectable()
 export class RoutesProvider {
 
@@ -50,6 +44,14 @@ export class RoutesProvider {
     });
   }
 
+  private updateFences(): void {
+    const fences = this.routes.map((route: Route) => {
+      if (route.canRide())
+        return route.getFence()
+
+    });
+    //this.geofence.addOrUpdate(fences).then(r => console.log(r)).catch(e => console.log(e));
+  }
   private setRoutes(routes: Route[]): void {
     this.routes = routes;
     this.refreshActiveRoutesCount();
@@ -66,7 +68,8 @@ export class RoutesProvider {
   }
 
   private refreshActiveRoutesCount(): void {
-    this._activeRoutesCount = this.routes.filter((item: Route) => { return item.isTask() }).length;
+    this._activeRoutesCount = this.routes.filter((item: Route) => { return item.canRide() }).length;
+    this.updateFences();
   }
 
   private storeRoutes(): void {
@@ -83,9 +86,7 @@ export class RoutesProvider {
 
 
   private checkIndex(id: number): boolean {
-    return (this.routes[id] && this.routes[id].isTask())
-      ? true
-      : false;
+    return (this.routes[id] && this.routes[id].canRide());
   }
 
 
@@ -131,7 +132,7 @@ export class RoutesProvider {
     this.routes[searchingIndex] = route;
 
     this.storeRoutes();
-    this.presentToastr((message) ? message : 'Route wurde bearbeitet!');
+    // this.presentToastr((message) ? message : 'Route wurde bearbeitet!');
   }
 
   removeRoute(route: Route): void {
@@ -163,14 +164,18 @@ export class RoutesProvider {
     this.routes.push(route);
     this.dummy = new Route();
     this.storeRoutes();
-    this.presentToastr('Route wurde erfolgreich erstellt!');
+    // this.presentToastr('Route wurde erfolgreich erstellt!');
   }
 
   reset(): void {
     this.stop();
+    this.routes.forEach((route: Route) => { route.done = false; });
     this.setCurrentIndex(this.findNextTask(-1, true));
   }
 
+  routeIsDone(): void {
+    this.currentRoute.done = true;
+  }
   stop(): void {
     this.isPlaying = false;
   }
@@ -181,10 +186,12 @@ export class RoutesProvider {
 
   next(): void {
     this.stop();
+    this.routeIsDone();
     this.setCurrentIndex(this.findNextTask(this.currentIndex, true));
   }
 
   wantToPlay(index: number) {
+    this.isPlaying = false;
     const route = this.routes[index];
     if (route) {
       if (!route.isTask()) {
@@ -205,15 +212,21 @@ export class RoutesProvider {
     }
   }
 
-  startNaviOnCurrentRoute() {
+  startNaviOnCurrentRoute(): void {
     this.launchNavigator.navigate(this.currentRoute.address.formattedAddress)
       .then(
         success => console.log('Launched navigator'),
         error => console.log('Error launching navigator', error)
       );
   }
+  deleteAllRoutes(): void {
+    this.setRoutes([]);
+    this.storeRoutes();
 
-  private presentToastr(_message: string): void {
+    this.presentToastr('Alle Routen wurden gelöscht!');
+  }
+
+  presentToastr(_message: string): void {
 
     this.toastCtrl.create({
       message: _message,

@@ -22,9 +22,12 @@ export class Route {
 
   constructor(parent?: Address) {
     this.address = (parent) ? parent : new Address();
-    this.id = new Date().getTime();
+    this.id = this.createDate();
   };
 
+  createDate(): number {
+    return new Date().getTime();
+  }
   dayKeys(): string[] {
     return Object.keys(this.activeDays);
   }
@@ -36,11 +39,31 @@ export class Route {
     return this.activeDays[this.dayKeys()[this.getWeekDay()]];
   }
 
+  canRide(): boolean {
+    return !this.done && this.isTask();
+  }
+
   isTask(): boolean {
     return (this.isTodayTask() && !this.switchedActive) || (!this.isTodayTask() && this.switchedActive);
   }
 
-  switchIsTask() {
+  switchIsTask(): void {
     this.switchedActive = !this.switchedActive;
+  }
+
+  getFence(): any {
+    return {
+      id: this.id,
+      latitude: this.address.coards.lat,
+      longitude: this.address.coards.lng,
+      radius: 100,
+      transitionType: 1,
+      notification: {
+        id: `${this.id}_${this.createDate()}`,
+        title: 'Du hast dich dem Ziel genähert!',
+        text: `Bist du am ${this.name} angekommen?`,
+        openAppOnClick: true
+      }
+    }
   }
 }

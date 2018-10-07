@@ -1,4 +1,10 @@
 page-home {
+    ion-footer {
+        &.hide {
+            display: none;
+        }
+        background-color: transparent;
+    }
     ion-item {
         &.mainToolbar {
             background-color: rgba(204, 227, 247, 0.85) !important;

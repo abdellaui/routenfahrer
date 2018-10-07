@@ -1,41 +1,120 @@
-import {
-  NativeGeocoder,
-  NativeGeocoderForwardResult,
-  NativeGeocoderOptions,
-  NativeGeocoderReverseResult,
-} from '@ionic-native/native-geocoder';
+import { NativeGeocoder } from '@ionic-native/native-geocoder';
 
-class NativeGeocoderReverseResultE implements NativeGeocoderReverseResult {
-  countryCode: string = 'countryCode';
-  countryName: string = 'countryName';
-  postalCode: string = 'postalCode';
-  administrativeArea: string = 'administrativeArea';
-  subAdministrativeArea: string = 'subAdministrativeArea';
-  locality: string = 'locality';
-  subLocality: string = 'subLocality';
-  thoroughfare: string = 'thoroughfare';
-  subThoroughfare: string = 'subThoroughfare';
-};
 
 export class NativeGeocoderMock extends NativeGeocoder {
+  /**
+   * Reverse geocode a given latitude and longitude to find location address
+   * @param latitude {number} The latitude
+   * @param longitude {number} The longitude
+   * @return {Promise<any>}
+   */
   reverseGeocode(latitude: number, longitude: number, options?: NativeGeocoderOptions): Promise<NativeGeocoderReverseResult[]> {
+    return new Promise(
+      (resolve, reject) => {
+        resolve([
+          <NativeGeocoderReverseResult>{
+            countryCode: 'countryCode',
+            countryName: 'countryName',
+            postalCode: 'postalCode',
+            administrativeArea: 'administrativeArea',
+            subAdministrativeArea: 'subAdministrativeArea',
+            locality: 'locality',
+            subLocality: 'subLocality',
+            thoroughfare: 'thoroughfare',
+            subThoroughfare: 'subThoroughfare'
+          }
+        ]);
 
-    return new Promise((resolve, reject) => {
-      resolve([new NativeGeocoderReverseResultE(),
-      new NativeGeocoderReverseResultE(),
-      new NativeGeocoderReverseResultE(),
-      new NativeGeocoderReverseResultE(),
-      new NativeGeocoderReverseResultE()]);
-    });
+      }
+    );
   }
-
+  /**
+   * Forward geocode a given address to find coordinates
+   * @param addressString {string} The address to be geocoded
+   * @return {Promise<any>}
+   */
   forwardGeocode(addressString: string, options?: NativeGeocoderOptions): Promise<NativeGeocoderForwardResult[]> {
-    return new Promise((resolve, reject) => {
-      resolve([{ latitude: "51.163375", longitude: "10.447683" },
-      { latitude: "51.163375", longitude: "10.447683" },
-      { latitude: "51.163375", longitude: "10.447683" },
-      { latitude: "51.163375", longitude: "10.447683" },
-      { latitude: "51.163375", longitude: "10.447683" }]);
-    });
-  }
+    return new Promise(
+      (resolve, reject) => {
+        resolve([
+          <NativeGeocoderForwardResult>{
+            latitude: '51.163375',
+            longitude: '10.447683'
+          }
+        ]);
+      }
+    );
+  };
+}
+/**
+ * Encapsulates format information about a reverse geocoding result.
+ */
+export interface NativeGeocoderReverseResult {
+  /**
+   * The country code.
+   */
+  countryCode: string;
+  /**
+   * The country name.
+   */
+  countryName: string;
+  /**
+   * The postal code.
+   */
+  postalCode: string;
+  /**
+   * The administrativeArea.
+   */
+  administrativeArea: string;
+  /**
+   * The subAdministrativeArea.
+   */
+  subAdministrativeArea: string;
+  /**
+   * The locality.
+   */
+  locality: string;
+  /**
+   * The subLocality.
+   */
+  subLocality: string;
+  /**
+   * The thoroughfare.
+   */
+  thoroughfare: string;
+  /**
+   * The subThoroughfare.
+   */
+  subThoroughfare: string;
+}
+/**
+ * Encapsulates format information about a forward geocoding result.
+ */
+export interface NativeGeocoderForwardResult {
+  /**
+   * The latitude.
+   */
+  latitude: string;
+  /**
+   * The longitude.
+   */
+  longitude: string;
+}
+export interface NativeGeocoderOptions {
+  /**
+   * The locale to use when returning the address information.
+   * If set to 'false' the locale will always be 'en_US'.
+   * Default is 'true'
+   */
+  useLocale: boolean;
+  /**
+   * The default locale to use when returning the address information.
+   * e.g.: 'fa-IR' or 'de_DE'.
+   */
+  defaultLocale?: string;
+  /**
+   * The maximum number of result to return (max is 5).
+   * Default is 1
+   */
+  maxResults: number;
 }

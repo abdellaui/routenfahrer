@@ -13,7 +13,7 @@ export class HomePage {
   canCreate: boolean = true;
   reordering: boolean = false;
 
-  constructor(public navCtrl: NavController, 
+  constructor(public navCtrl: NavController,
     public routesProvider: RoutesProvider,
     public alertCtrl: AlertController) {
 
@@ -22,7 +22,7 @@ export class HomePage {
   doRefresh(event: any): void {
     this.alertCtrl.create({
       title: 'Hinweis',
-      message: 'Ihre Routenhistorie wird überschrieben!',
+      message: 'Ihr aktueller Fahrtenhistorie wird zurückgesetzt!',
       buttons: [
         {
           text: 'Abbrechen',

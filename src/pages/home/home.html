@@ -28,9 +28,7 @@
   <route-liste [reorder]="reordering"></route-liste>
 </ion-content>
 
-<ion-footer>
-
-
+<ion-footer [class]="!routesProvider.currentRoute?'hide':''">
   <ion-item *ngIf="routesProvider.currentRoute" class="mainToolbar" no-lines>
     <div class="text-ellipsis">
       {{routesProvider.currentRoute.name}}

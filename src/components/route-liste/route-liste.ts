@@ -43,7 +43,13 @@ export class RouteListeComponent {
 
 
 
-
-
-
+  showEmptyInfo(): boolean {
+    if (!this.canReorder && this.settingsProvider.configs.showTaskOnly) {
+      return Boolean(this.routesProvider._activeRoutesCount);
+    } else {
+      return Boolean(this.routesProvider.routes.length);
+    }
+  }
 }
+
+

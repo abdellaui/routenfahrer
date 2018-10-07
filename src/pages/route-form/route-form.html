@@ -10,11 +10,10 @@
 <ion-content class="outer-content">
 
 
-
   <ion-searchbar placeholder="Adresssuche beginnen" [(ngModel)]="searchInputValue" (ionInput)="onInputSearch()">
   </ion-searchbar>
 
-  <ion-list *ngIf="possibleAddresses">
+  <ion-list *ngIf="possibleAddresses" no-margin>
     <ion-item *ngFor="let address of possibleAddresses" (click)="addressSelected(address)">
       {{address.formattedAddress}}
     </ion-item>
@@ -23,7 +22,7 @@
   <div id="sMap" #sMap>
   </div>
 
-  <ion-list *ngIf="showAddressSetting">
+  <ion-list>
     <ion-list-header>
       Konfiguration
     </ion-list-header>
@@ -42,7 +41,7 @@
     </ion-item>
   </ion-list>
 
-  <ion-list *ngIf="showAddressSetting">
+  <ion-list>
     <ion-list-header>
       Wiederholung
     </ion-list-header>

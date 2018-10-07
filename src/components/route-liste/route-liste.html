@@ -1,4 +1,4 @@
-<ion-list *ngIf="!routesProvider.routes.length" margin-top margin-left>
+<ion-list *ngIf="!showEmptyInfo()" margin-top margin-left>
   Aktuelle keine Routen verfügbar!
 </ion-list>
 <ion-list #listOfRoutes *ngIf="routesProvider.routes.length" [reorder]="canReorder" (ionItemReorder)="this.routesProvider.reorderRoutes($event)">
@@ -9,9 +9,12 @@
 :''
 ">
     <ion-item text-wrap>
-      <ion-icon item-start *ngIf="item.isTask()" [name]="item.done
-                  ?'arrow-down'
-                  :'arrow-forward'">
+      <ion-icon item-start *ngIf="item.isTask()" [name]="
+      (item.done)
+      ?'done-all'
+      :(routesProvider.currentIndex == itemIndex)
+      ?'car'
+      :'pin'">
       </ion-icon>
 
       <route-view [route]="item"></route-view>

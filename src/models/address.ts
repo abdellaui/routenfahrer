@@ -9,7 +9,6 @@ export class Address {
   coards: { lat: number, lng: number }
 
   constructor() {
-
   }
   generateFormatedAdress() {
 

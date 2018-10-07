@@ -28,7 +28,6 @@ export class RouteFormPage {
   lockPossibleAddresses: boolean = false;
   possibleAddresses: Address[];
   editing: boolean = false;
-  showAddressSetting: boolean;
   currentRoute: Route;
   subCoard: any;
 
@@ -114,23 +113,21 @@ export class RouteFormPage {
         }).catch(e => {
           loading.dismiss();
           this.initMapsAndSearch();
-          let alert = this.alertCtrl.create({
+          this.alertCtrl.create({
             title: 'Hinweis',
             subTitle: 'Bitte Zugriff auf Standort erlauben!',
             buttons: ['Ok']
-          });
-          alert.present();
+          }).present();
         });
     }
 
   }
 
-  showSettingsChange(bool: boolean) {
+  unsubscribeMeMaker() {
     if (this.subCoard) {
       this.subCoard.unsubscribe();
       this.subCoard = null;
     }
-    this.showAddressSetting = bool;
   }
   ionViewWillLeave() {
     this.mapDiv.nativeElement.className = "";
@@ -156,9 +153,7 @@ export class RouteFormPage {
       console.log(e);
     });
 
-    if (!this.checkSearchString()) {
-      this.showSettingsChange(true);
-    }
+
   }
 
   mapShowCoard(coards: any): void {
@@ -179,7 +174,6 @@ export class RouteFormPage {
   resetAddress(): void {
     this.mapShowCoard(this.defaultCoard);
     this.currentRoute.address = new Address();
-    this.showSettingsChange(false);
   }
 
   getInfoKeys(): string[] {
@@ -191,9 +185,10 @@ export class RouteFormPage {
   }
 
   checkSearchString(): boolean {
+    this.unsubscribeMeMaker();
     if (!this.searchInputValue) {
       this.lockPossibleAddresses = false;
-      this.resetAddress();
+      // this.resetAddress();
       return true;
     } else {
       this.currentRoute.address.generateFormatedAdress();
@@ -202,7 +197,6 @@ export class RouteFormPage {
 
   }
   onInputSearch() {
-    console.log('yes');
     this.currentRoute.address.formattedAddress = this.searchInputValue;
     if (this.checkSearchString()) return;
     if (this.lockPossibleAddresses) return (this.lockPossibleAddresses = false);
@@ -220,9 +214,9 @@ export class RouteFormPage {
 
 
   onChangeProps(): void {
-    this.searchInputValue = this.currentRoute.address.formattedAddress;
-
+    console.log(this.currentRoute.address, this.currentRoute.name);
     if (this.checkSearchString()) return;
+    this.searchInputValue = this.currentRoute.address.formattedAddress;
     this.geocodeAddress()
       .then((result: Address[]) => {
 
@@ -281,26 +275,37 @@ export class RouteFormPage {
       this.currentRoute.name = this.currentRoute.address.thoroughfare;
     this.mapShowCoard(this.currentRoute.address.coards);
 
-    this.showSettingsChange(true);
   }
 
   validateInput(): boolean {
-    return (
-      this.showAddressSetting &&
-      Boolean(this.currentRoute.name) &&
-      this.currentRoute.address.validateInput()
-    );
+    console.log(this.currentRoute.address, this.currentRoute.name);
+    return (this.currentRoute.name && this.currentRoute.address.validateInput());
   }
   storeInput(): void {
 
     if (this.validateInput()) {
-      if (this.editing) {
-        this.routesProvider.changeRoute(this.currentRoute);
-      } else {
-        this.routesProvider.addRoute(this.currentRoute);
-      }
 
-      this.navCtrl.pop();
+
+      this.geocodeAddress()
+        .then((result: Address[]) => {
+          this.currentRoute.address = result[0];
+          if (this.editing) {
+            this.routesProvider.changeRoute(this.currentRoute);
+          } else {
+            this.routesProvider.addRoute(this.currentRoute);
+          }
+
+          this.navCtrl.pop();
+
+        })
+        .catch((error: any) => {
+          this.alertCtrl.create({
+            title: 'Hinweis',
+            subTitle: 'Adresse konnte nicht gefunden werden! Geben Sie gültige Adressen ein!',
+            buttons: ['Ok']
+          }).present();
+        });
+
 
     }
 
