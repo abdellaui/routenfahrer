@@ -1,7 +1,7 @@
 <div [class]="route.isTask() ? 'active' : 'inactive'">
 
   <div class="text-ellipsis">
-    <span [class]="route.switchedActive?'dot active':'dot inactive'"> </span>
+    <span *ngIf="route.switchedActive" class="dot active"> </span>
     {{ route.name }}
 
     <p>

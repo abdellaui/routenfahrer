@@ -64,10 +64,10 @@ export class RouteFormPage {
     private loadingCtrl: LoadingController,
     private alertCtrl: AlertController,
     private nativeGeocoder: NativeGeocoder) {
-
-    if (navParams.data instanceof Route) {
-      this.currentRoute = navParams.data;
-      this.defaultCoard = this.currentRoute.address.coards;
+    console.log(JSON.stringify(navParams.data));
+    const paramRoute = navParams.get('route');
+    if (paramRoute instanceof Route) {
+      this.currentRoute = paramRoute;
       this.editing = true;
     } else {
       this.currentRoute = routesProvider.getDummy();
@@ -85,6 +85,7 @@ export class RouteFormPage {
 
     if (this.editing || this.searchInputValue) {
       loading.dismiss();
+      this.defaultCoard = this.currentRoute.address.coards;
       this.initMapsAndSearch();
 
     } else {
@@ -102,10 +103,11 @@ export class RouteFormPage {
 
           this.subCoard = this.geolocation.watchPosition().subscribe((data) => {
             if (data.coords === undefined) return;
-            this.defaultCoard.lat = position.coords.latitude;
-            this.defaultCoard.lng = position.coords.longitude;
-            if (this.mapMap)
-              this.mapShowCoard(this.defaultCoard);
+            this.defaultCoard.lat = data.coords.latitude;
+            this.defaultCoard.lng = data.coords.longitude;
+
+
+            this.mapShowCoard(this.defaultCoard);
           });
 
 
@@ -123,18 +125,17 @@ export class RouteFormPage {
 
   }
 
-  unsubscribeMeMaker() {
+  private unsubscribeMeMaker() {
     if (this.subCoard) {
       this.subCoard.unsubscribe();
       this.subCoard = null;
     }
   }
   ionViewWillLeave() {
-    this.mapDiv.nativeElement.className = "";
+    this.unsubscribeMeMaker();
     this.navCtrl.popToRoot();
   }
   initMapsAndSearch(): void {
-    this.mapDiv.nativeElement.className = "mapShow";
     this.mapMap = GoogleMaps.create(this.mapDiv.nativeElement, {
       camera: {
         target: this.defaultCoard,
@@ -148,26 +149,20 @@ export class RouteFormPage {
       icon: 'red',
       position: this.defaultCoard
     }).then((marker: Marker) => {
-      this.mapMarker = marker;
-    }).catch(e => {
-      console.log(e);
-    });
 
+      this.mapMarker = marker;
+
+    }).catch(e => {
+      console.log(JSON.stringify(e));
+    });
 
   }
 
   mapShowCoard(coards: any): void {
-
-    this.mapMap.moveCamera({
-      target: coards,
-      zoom: 15,
-      tilt: 30
-    }).then(() => {
-      this.mapMarker.setPosition(coards);
-    }).catch(e => {
-      console.log(e);
-    });
-
+    if (!this.mapMap) return;
+    this.mapMap.setCameraTarget(coards);
+    if (!this.mapMarker) return;
+    this.mapMarker.setPosition(coards);
 
 
   }
@@ -188,13 +183,16 @@ export class RouteFormPage {
     this.unsubscribeMeMaker();
     if (!this.searchInputValue) {
       this.lockPossibleAddresses = false;
-      // this.resetAddress();
       return true;
     } else {
       this.currentRoute.address.generateFormatedAdress();
       return false;
     }
 
+  }
+  onCancel(event) {
+    console.log('CANCELLED!');
+    this.resetAddress();
   }
   onInputSearch() {
     this.currentRoute.address.formattedAddress = this.searchInputValue;
@@ -214,7 +212,6 @@ export class RouteFormPage {
 
 
   onChangeProps(): void {
-    console.log(this.currentRoute.address, this.currentRoute.name);
     if (this.checkSearchString()) return;
     this.searchInputValue = this.currentRoute.address.formattedAddress;
     this.geocodeAddress()
@@ -232,6 +229,7 @@ export class RouteFormPage {
 
   geocodeAddress(): Promise<Address[]> {
     return new Promise((resolve, reject) => {
+
 
       this.nativeGeocoder.forwardGeocode(this.searchInputValue, this.geoOptions)
         .then((coordinates: NativeGeocoderForwardResult[]) => {
@@ -261,6 +259,7 @@ export class RouteFormPage {
           });
         }).catch((error: any) => reject(error));
     });
+
   }
 
   addressSelected(address: Address) {
@@ -278,14 +277,13 @@ export class RouteFormPage {
   }
 
   validateInput(): boolean {
-    console.log(this.currentRoute.address, this.currentRoute.name);
     return (this.currentRoute.name && this.currentRoute.address.validateInput());
   }
   storeInput(): void {
 
     if (this.validateInput()) {
 
-
+      this.checkSearchString();
       this.geocodeAddress()
         .then((result: Address[]) => {
           this.currentRoute.address = result[0];

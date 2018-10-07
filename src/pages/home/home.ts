@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AlertController, NavController } from 'ionic-angular';
+import { AlertController, ModalController, NavController } from 'ionic-angular';
 
 import { RoutesProvider } from '../../providers/routes';
 import { RouteFormPage } from '../route-form/route-form';
@@ -13,8 +13,10 @@ export class HomePage {
   canCreate: boolean = true;
   reordering: boolean = false;
 
-  constructor(public navCtrl: NavController,
+  constructor(
+    public navCtrl: NavController,
     public routesProvider: RoutesProvider,
+    public modalCtrl: ModalController,
     public alertCtrl: AlertController) {
 
   }
@@ -41,8 +43,7 @@ export class HomePage {
     }).present();
   }
   createRoute(): void {
-
-    this.navCtrl.push(RouteFormPage, null);
+    this.navCtrl.push(RouteFormPage, { route: null });
   }
 
   switchReorder(): void {

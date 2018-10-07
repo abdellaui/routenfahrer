@@ -16,7 +16,7 @@ export class AppProviders {
   public static getProviders() {
 
     let providers;
-    let needMock = true;
+    let needMock = false;
     if (needMock) {
 
       // Use browser providers

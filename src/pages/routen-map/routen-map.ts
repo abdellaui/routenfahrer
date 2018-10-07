@@ -1,6 +1,6 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Geolocation } from '@ionic-native/geolocation';
-import { GoogleMap, GoogleMaps, Marker, MarkerOptions } from '@ionic-native/google-maps';
+import { GoogleMap, GoogleMaps, ILatLng, Marker, MarkerOptions } from '@ionic-native/google-maps';
 import { AlertController, Loading, LoadingController, NavController } from 'ionic-angular';
 
 import { Route } from '../../models/Route';
@@ -13,7 +13,7 @@ import { RoutesProvider } from '../../providers/routes';
 export class RoutenMapPage {
 
   @ViewChild('map') map: ElementRef;
-  defaultCoard: any = { lat: 51.163375, lng: 10.447683 };
+  defaultCoard: ILatLng = { lat: 51.163375, lng: 10.447683 };
   mapMap: GoogleMap;
   markMe: Marker;
   loading: Loading;
@@ -40,16 +40,16 @@ export class RoutenMapPage {
 
         this.initMap();
         this.loading.dismiss();
-
         this.geolocation.watchPosition()
           .subscribe((data) => {
             if (data.coords === undefined) return;
-            this.defaultCoard.lat = position.coords.latitude;
-            this.defaultCoard.lng = position.coords.longitude;
-            if (this.markMe) this.markMe.setPosition(this.defaultCoard);
+            this.defaultCoard.lat = data.coords.latitude;
+            this.defaultCoard.lng = data.coords.longitude;
+            this.moveMeMarker(this.defaultCoard);
 
           });
       }).catch(e => {
+        console.log(JSON.stringify(e));
         this.loading.dismiss();
         this.initMap();
         let alert = this.alertCtrl.create({
@@ -66,17 +66,11 @@ export class RoutenMapPage {
   ionViewWillEnter() {
     if (!this.mapMap) return;
     this.mapMap.clear();
-    this.mapMap.moveCamera({
-      target: this.defaultCoard,
-      zoom: 10,
-      tilt: 0
-    }).then(() => {
+    this.mapMap.setCameraTarget(this.defaultCoard);
 
-      this.addMeMarker();
 
-    }).catch(e => {
-      console.log(e);
-    });
+    this.addMeMarker();
+
 
     this.routesProvider.routes.forEach((el: Route) => {
 
@@ -85,13 +79,12 @@ export class RoutenMapPage {
         icon: 'red',
         flat: true,
         position: el.address.coards
-      }).then((marker: Marker) => {
-        //console.log(marker)
       }).catch(e => {
-        console.log(e);
+        console.log(JSON.stringify(e));
       });
 
     });
+
   }
   initMap() {
     this.mapMap = GoogleMaps.create(this.map.nativeElement,
@@ -105,6 +98,12 @@ export class RoutenMapPage {
     this.addMeMarker();
   }
 
+  private moveMeMarker(coards) {
+    if (!this.markMe) return;
+
+    this.markMe.setPosition(this.defaultCoard);
+
+  }
   private addMeMarker() {
     this.addMarker({
       title: 'Sie',
@@ -114,7 +113,7 @@ export class RoutenMapPage {
     }).then((marker: Marker) => {
       this.markMe = marker
     }).catch(e => {
-      console.log(e);
+      console.log(JSON.stringify(e));
     });
   }
 

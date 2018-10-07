@@ -15,13 +15,14 @@ export class RouteListeComponent {
 
   @ViewChild('listOfRoutes', { read: List }) listView: List;
 
-  constructor(public routesProvider: RoutesProvider, private navCtrl: NavController,
-    public settingsProvider: SettingsProvider) {
+  constructor(public routesProvider: RoutesProvider,
+    public settingsProvider: SettingsProvider,
+    public navCtrl: NavController) {
   }
 
   edit(item: Route) {
     this.listView.closeSlidingItems();
-    this.navCtrl.push(RouteFormPage, item);
+    this.navCtrl.push(RouteFormPage, { route: item });
   }
 
 

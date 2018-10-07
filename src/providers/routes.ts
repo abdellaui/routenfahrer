@@ -18,6 +18,7 @@ export class RoutesProvider {
   isPlaying: boolean = false;
   routes: Route[] = [];
   _activeRoutesCount: number = 0;
+  _canRideRoutesCount: number = 0;
 
   constructor(
     private storage: Storage,
@@ -39,22 +40,23 @@ export class RoutesProvider {
         this.setRoutes(instances);
         this.setCurrentIndex(this.settingsProvider.configs.currentIndex);
       }).catch((e: Error) => {
-        console.log(e);
+        console.log(JSON.stringify(e));
       });
     });
   }
 
   private updateFences(): void {
-    const fences = this.routes.map((route: Route) => {
+    /*const fences = this.routes.map((route: Route) => {
       if (route.canRide())
         return route.getFence()
 
     });
-    //this.geofence.addOrUpdate(fences).then(r => console.log(r)).catch(e => console.log(e));
+    this.geofence.addOrUpdate(fences).then(r => console.log(r)).catch(e => console.log(e));
+    */
   }
   private setRoutes(routes: Route[]): void {
     this.routes = routes;
-    this.refreshActiveRoutesCount();
+    this.refreshStatRoutesCount();
   }
   private setCurrentIndex(index: number): void {
     this.currentIndex = index;
@@ -67,13 +69,16 @@ export class RoutesProvider {
     this.settingsProvider.storeConfigs();
   }
 
-  private refreshActiveRoutesCount(): void {
-    this._activeRoutesCount = this.routes.filter((item: Route) => { return item.canRide() }).length;
+  private refreshStatRoutesCount(): void {
+    const tasks = this.routes.filter((item: Route) => { return item.isTask() });
+    const rides = tasks.filter((item: Route) => { return item.canRide() });
+    this._activeRoutesCount = tasks.length;
+    this._canRideRoutesCount = rides.length;
     this.updateFences();
   }
 
   private storeRoutes(): void {
-    this.refreshActiveRoutesCount();
+    this.refreshStatRoutesCount();
     this.storage.set('routes', this.routes);
 
     this.currentIndex = (this.checkIndex(this.currentIndex))
@@ -92,7 +97,7 @@ export class RoutesProvider {
 
   private findNextTask(index: number, forward: boolean): number {
 
-    if (this._activeRoutesCount === 0) return 0;
+    if (this._canRideRoutesCount === 0) return 0;
 
     const mult = (forward) ? 1 : -1;
     let indexing = index;
@@ -194,10 +199,10 @@ export class RoutesProvider {
     this.isPlaying = false;
     const route = this.routes[index];
     if (route) {
-      if (!route.isTask()) {
-        route.switchIsTask();
-        this.storeRoutes();
-      }
+
+      route.switchedActive = !route.isTodayTask();
+      route.done = false;
+      this.storeRoutes();
       this.setCurrentIndex(index);
 
       //this.startNaviOnCurrentRoute();
@@ -219,11 +224,21 @@ export class RoutesProvider {
         error => console.log('Error launching navigator', error)
       );
   }
+
   deleteAllRoutes(): void {
     this.setRoutes([]);
     this.storeRoutes();
 
     this.presentToastr('Alle Routen wurden gelöscht!');
+  }
+
+  turnAllActiveRoutesOff(): void {
+    this.routes.forEach((route: Route) => {
+      route.switchedActive = false;
+    });
+    this.storeRoutes();
+
+    this.presentToastr('Alle Routen wurden zurückgesetzt!');
   }
 
   presentToastr(_message: string): void {

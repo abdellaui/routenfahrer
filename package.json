@@ -8,7 +8,10 @@
     "start": "ionic-app-scripts serve",
     "clean": "ionic-app-scripts clean",
     "build": "ionic-app-scripts build",
-    "lint": "ionic-app-scripts lint"
+    "lint": "ionic-app-scripts lint",
+    "ios:emu": "ionic cordova emulate ios -lc -- --buildFlag=\"-UseModernBuildSystem=0\" --target=\"iPhone-6s, 12.0\"",
+    "ios:prepare": "ionic cordova prepare ios",
+    "browser": "ionic cordova run browser -lc"
   },
   "dependencies": {
     "@angular/animations": "5.2.11",

@@ -35,6 +35,10 @@
       <ion-toggle color="secondary" [checked]="settingsProvider.configs.showTaskOnly" (ionChange)="settingsProvider.toggleShowTaskOnly()"></ion-toggle>
     </ion-item>
 
+    <button ion-item (click)="turnAllActiveRoutesOff()" detail-none>
+      Alle Routen zurücksetzen!
+    </button>
+
     <button ion-item (click)="deleteAllRoutes()" class="delBtn" detail-none>
       Alle Routen löschen
     </button>

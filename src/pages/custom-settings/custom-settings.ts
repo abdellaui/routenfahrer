@@ -63,7 +63,27 @@ export class CustomSettingsPage {
     });
   }
 
-
+  turnAllActiveRoutesOff(): void {
+    this.alertCtrl.create({
+      title: 'Achtung',
+      message: 'Sie setzen alle Routen wieder zurück, welche Sie vorher manuell aktiviert oder deaktiviert haben! Dieser Schritt kann  nicht rückgängig gemacht werden!',
+      buttons: [
+        {
+          text: 'Abbrechen',
+          role: 'cancel',
+          handler: () => {
+            console.log('Cancel clicked');
+          }
+        },
+        {
+          text: 'Ok',
+          handler: () => {
+            this.routesProvider.turnAllActiveRoutesOff();
+          }
+        }
+      ]
+    }).present();
+  }
   deleteAllRoutes(): void {
     this.alertCtrl.create({
       title: 'Achtung',

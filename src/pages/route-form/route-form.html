@@ -8,20 +8,18 @@
 
 
 <ion-content class="outer-content">
+  <ion-list>
+    <ion-searchbar placeholder="Adresssuche beginnen" [(ngModel)]="searchInputValue" (ionInput)="onInputSearch()"
+      [showCancelButton]="true" (ionCancel)="onCancel($event)">
+    </ion-searchbar>
 
-
-  <ion-searchbar placeholder="Adresssuche beginnen" [(ngModel)]="searchInputValue" (ionInput)="onInputSearch()">
-  </ion-searchbar>
-
-  <ion-list *ngIf="possibleAddresses" no-margin>
     <ion-item *ngFor="let address of possibleAddresses" (click)="addressSelected(address)">
       {{address.formattedAddress}}
     </ion-item>
+
+    <div class="mapShow" id="sMap" #sMap></div>
+
   </ion-list>
-
-  <div id="sMap" #sMap>
-  </div>
-
   <ion-list>
     <ion-list-header>
       Konfiguration
