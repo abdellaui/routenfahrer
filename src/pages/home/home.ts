@@ -28,6 +28,7 @@ export class HomePage {
       buttons: [
         {
           text: 'Abbrechen',
+          role: 'cancel',
           handler: () => {
             event.cancel();
           }

@@ -51,19 +51,4 @@ export class Route {
     this.switchedActive = !this.switchedActive;
   }
 
-  getFence(): any {
-    return {
-      id: this.id,
-      latitude: this.address.coards.lat,
-      longitude: this.address.coards.lng,
-      radius: 100,
-      transitionType: 1,
-      notification: {
-        id: `${this.id}_${this.createDate()}`,
-        title: 'Du hast dich dem Ziel genähert!',
-        text: `Bist du am ${this.name} angekommen?`,
-        openAppOnClick: true
-      }
-    }
-  }
 }

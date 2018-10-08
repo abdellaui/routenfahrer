@@ -8,6 +8,7 @@ import { IonicErrorHandler } from 'ionic-angular';
 
 import { LaunchNavigatorMock } from '../models/mocks/LaunchNavigatorMock';
 import { NativeGeocoderMock } from '../models/mocks/NativeGeocoderMock';
+import { LocationProvider } from '../providers/location';
 import { RoutesProvider } from '../providers/routes';
 import { SettingsProvider } from '../providers/settings';
 
@@ -25,6 +26,7 @@ export class AppProviders {
         SplashScreen,
         Geolocation,
         SettingsProvider,
+        LocationProvider,
         RoutesProvider,
         { provide: LaunchNavigator, useClass: LaunchNavigatorMock },
         { provide: NativeGeocoder, useClass: NativeGeocoderMock },
@@ -39,6 +41,7 @@ export class AppProviders {
         SplashScreen,
         Geolocation,
         SettingsProvider,
+        LocationProvider,
         RoutesProvider,
         { provide: LaunchNavigator, useClass: LaunchNavigator },
         { provide: NativeGeocoder, useClass: NativeGeocoder },

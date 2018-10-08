@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { LaunchNavigator } from '@ionic-native/launch-navigator';
 import { Storage } from '@ionic/storage';
-import { AlertController, ToastController } from 'ionic-angular';
+import { ActionSheetController, AlertController, ToastController } from 'ionic-angular';
 import { ReorderIndexes } from 'ionic-angular/umd/components/item/item-reorder';
 
 import { Address } from '../models/Address';
@@ -25,7 +25,8 @@ export class RoutesProvider {
     private toastCtrl: ToastController,
     private launchNavigator: LaunchNavigator,
     private alertCtrl: AlertController,
-    private settingsProvider: SettingsProvider) {
+    private settingsProvider: SettingsProvider,
+    public actionSheetCtrl: ActionSheetController) {
 
     this.storage.ready().then(() => {
 
@@ -39,24 +40,21 @@ export class RoutesProvider {
         });
         this.setRoutes(instances);
         this.setCurrentIndex(this.settingsProvider.configs.currentIndex);
+        this.setIsPlaying(this.settingsProvider.configs.isPlaying);
       }).catch((e: Error) => {
         console.log(JSON.stringify(e));
       });
     });
   }
 
-  private updateFences(): void {
-    /*const fences = this.routes.map((route: Route) => {
-      if (route.canRide())
-        return route.getFence()
-
-    });
-    this.geofence.addOrUpdate(fences).then(r => console.log(r)).catch(e => console.log(e));
-    */
-  }
   private setRoutes(routes: Route[]): void {
     this.routes = routes;
     this.refreshStatRoutesCount();
+  }
+  private setIsPlaying(playing: boolean): void {
+    this.isPlaying = playing;
+    this.settingsProvider.configs.isPlaying = this.isPlaying;
+    this.settingsProvider.storeConfigs();
   }
   private setCurrentIndex(index: number): void {
     this.currentIndex = index;
@@ -74,7 +72,6 @@ export class RoutesProvider {
     const rides = tasks.filter((item: Route) => { return item.canRide() });
     this._activeRoutesCount = tasks.length;
     this._canRideRoutesCount = rides.length;
-    this.updateFences();
   }
 
   private storeRoutes(): void {
@@ -152,7 +149,7 @@ export class RoutesProvider {
           handler: () => { }
         },
         {
-          text: 'Bestätige',
+          text: 'Bestätigen',
           handler: () => {
             this.routes.splice(this.routes.indexOf(route), 1);
             this.storeRoutes();
@@ -180,23 +177,59 @@ export class RoutesProvider {
 
   routeIsDone(): void {
     this.currentRoute.done = true;
+    this.storeRoutes();
+  }
+  askCurrentRouteSolved(): void {
+    if (!this.isPlaying) return;
+    this.actionSheetCtrl.create({
+      title: `${this.currentRoute.name}`,
+      enableBackdropDismiss: false,
+      buttons: [
+
+        {
+          text: 'Route wird noch gefahren',
+          handler: () => {
+            console.log('Archive clicked');
+          }
+        },
+        {
+          text: 'Route abbrechen',
+          role: 'destructive',
+          handler: () => {
+            this.stop();
+          }
+        },
+        {
+          icon: 'checkmark',
+          text: 'Nächstes Ziel!',
+          role: 'cancel',
+          handler: () => {
+            this.stop();
+            this.routeIsDone();
+            this.next();
+          }
+        }
+      ]
+    }).present();
+
   }
   stop(): void {
-    this.isPlaying = false;
+    this.setIsPlaying(false);
   }
+
+
   prev(): void {
-    this.stop();
+    if (this.isPlaying) return this.askCurrentRouteSolved();
     this.setCurrentIndex(this.findNextTask(this.currentIndex, false));
   }
 
   next(): void {
-    this.stop();
-    this.routeIsDone();
+    if (this.isPlaying) return this.askCurrentRouteSolved();
     this.setCurrentIndex(this.findNextTask(this.currentIndex, true));
   }
 
   wantToPlay(index: number) {
-    this.isPlaying = false;
+    this.setIsPlaying(false);
     const route = this.routes[index];
     if (route) {
 
@@ -209,12 +242,10 @@ export class RoutesProvider {
     }
   }
   start(): void {
-    if (!this.isPlaying) {
-      this.startNaviOnCurrentRoute();
-      this.isPlaying = true;
-    } else {
-      this.stop();
-    }
+
+    this.startNaviOnCurrentRoute();
+    this.setIsPlaying(true);
+
   }
 
   startNaviOnCurrentRoute(): void {

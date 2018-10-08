@@ -1,3 +1,5 @@
+import { ILatLng } from '@ionic-native/google-maps';
+
 export class Address {
   formattedAddress: string;
   thoroughfare: string;
@@ -6,7 +8,7 @@ export class Address {
   locality: string;
   countryName: string;
 
-  coards: { lat: number, lng: number }
+  coords: ILatLng
 
   constructor() {
   }

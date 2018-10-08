@@ -1,9 +1,9 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
-import { Geolocation } from '@ionic-native/geolocation';
+import { Component, ElementRef, NgZone, ViewChild } from '@angular/core';
 import { GoogleMap, GoogleMaps, ILatLng, Marker, MarkerOptions } from '@ionic-native/google-maps';
-import { AlertController, Loading, LoadingController, NavController } from 'ionic-angular';
+import { Loading, LoadingController, NavController } from 'ionic-angular';
 
 import { Route } from '../../models/Route';
+import { LocationProvider } from '../../providers/location';
 import { RoutesProvider } from '../../providers/routes';
 
 @Component({
@@ -13,61 +13,46 @@ import { RoutesProvider } from '../../providers/routes';
 export class RoutenMapPage {
 
   @ViewChild('map') map: ElementRef;
-  defaultCoard: ILatLng = { lat: 51.163375, lng: 10.447683 };
   mapMap: GoogleMap;
   markMe: Marker;
   loading: Loading;
+
   constructor(public navCtrl: NavController,
-    private geolocation: Geolocation,
-    private alertCtrl: AlertController,
     private loadingCtrl: LoadingController,
-    private routesProvider: RoutesProvider) {
+    private routesProvider: RoutesProvider,
+    private locationProvider: LocationProvider,
+    public zone: NgZone) {
     this.loading = this.loadingCtrl.create({
       content: 'Einen Moment bitte!'
     });
     this.loading.present();
+    this.locationProvider.startTracking('routen-map');
   }
 
   ionViewDidLoad() {
+    this.locationProvider.coordsChange.first().subscribe(() => {
+      this.initMap();
+    });
 
 
-    this.geolocation.getCurrentPosition()
-      .then((position) => {
-        if (position.coords) {
-          this.defaultCoard.lat = position.coords.latitude;
-          this.defaultCoard.lng = position.coords.longitude;
-        }
-
-        this.initMap();
-        this.loading.dismiss();
-        this.geolocation.watchPosition()
-          .subscribe((data) => {
-            if (data.coords === undefined) return;
-            this.defaultCoard.lat = data.coords.latitude;
-            this.defaultCoard.lng = data.coords.longitude;
-            this.moveMeMarker(this.defaultCoard);
-
-          });
-      }).catch(e => {
-        console.log(JSON.stringify(e));
-        this.loading.dismiss();
-        this.initMap();
-        let alert = this.alertCtrl.create({
-          title: 'Hinweis',
-          subTitle: 'Bitte Zugriff auf Standort erlauben!',
-          buttons: ['Ok']
-        });
-        alert.present();
+    this.locationProvider.coordsChange.subscribe((coords: ILatLng) => {
+      this.zone.run(() => {
+        this.moveMeMarker(coords);
       });
-
+    });
   }
 
+  ionViewWillLeave() {
+
+    this.locationProvider.stopTracking('routen-map');
+  }
 
   ionViewWillEnter() {
-    if (!this.mapMap) return;
+    this.locationProvider.startTracking('routen-map');
+    if (!this.mapMap || this.loading.isOverlay) return;
+    this.markMe = null;
     this.mapMap.clear();
-    this.mapMap.setCameraTarget(this.defaultCoard);
-
+    this.mapMap.setCameraTarget(this.locationProvider.coords);
 
     this.addMeMarker();
 
@@ -78,7 +63,7 @@ export class RoutenMapPage {
         title: `<h3>${el.name}</h3><p>${el.address.formattedAddress}</p>`,
         icon: 'red',
         flat: true,
-        position: el.address.coards
+        position: el.address.coords
       }).catch(e => {
         console.log(JSON.stringify(e));
       });
@@ -90,18 +75,19 @@ export class RoutenMapPage {
     this.mapMap = GoogleMaps.create(this.map.nativeElement,
       {
         camera: {
-          target: this.defaultCoard,
+          target: this.locationProvider.coords,
           zoom: 10,
           tilt: 0,
         }
       });
     this.addMeMarker();
+    this.loading.dismiss();
   }
 
-  private moveMeMarker(coards) {
+  private moveMeMarker(coords) {
     if (!this.markMe) return;
 
-    this.markMe.setPosition(this.defaultCoard);
+    this.markMe.setPosition(coords);
 
   }
   private addMeMarker() {
@@ -109,9 +95,12 @@ export class RoutenMapPage {
       title: 'Sie',
       icon: 'blue',
       flat: true,
-      position: this.defaultCoard
+      position: this.locationProvider.coords
     }).then((marker: Marker) => {
-      this.markMe = marker
+
+      this.zone.run(() => {
+        this.markMe = marker
+      });
     }).catch(e => {
       console.log(JSON.stringify(e));
     });

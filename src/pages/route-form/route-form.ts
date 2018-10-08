@@ -1,16 +1,17 @@
-import { Component, ViewChild } from '@angular/core';
-import { Geolocation } from '@ionic-native/geolocation';
-import { GoogleMap, GoogleMaps, Marker } from '@ionic-native/google-maps';
+import { Component, NgZone, ViewChild } from '@angular/core';
+import { GoogleMap, GoogleMaps, ILatLng, Marker } from '@ionic-native/google-maps';
 import {
   NativeGeocoder,
   NativeGeocoderForwardResult,
   NativeGeocoderOptions,
   NativeGeocoderReverseResult,
 } from '@ionic-native/native-geocoder';
-import { AlertController, LoadingController, NavController, NavParams } from 'ionic-angular';
+import { AlertController, Loading, LoadingController, NavController, NavParams } from 'ionic-angular';
+import { Subscription } from 'rxjs/Subscription';
 
 import { Address } from '../../models/Address';
 import { Route } from '../../models/Route';
+import { LocationProvider } from '../../providers/location';
 import { RoutesProvider } from '../../providers/routes';
 
 declare var Object;
@@ -21,17 +22,21 @@ declare var Object;
 })
 export class RouteFormPage {
   @ViewChild('sMap') mapDiv: any;
-
   mapMap: GoogleMap
   mapMarker: Marker;
+  subCoords: Subscription;
+
   searchInputValue: string;
   lockPossibleAddresses: boolean = false;
   possibleAddresses: Address[];
+
   editing: boolean = false;
   currentRoute: Route;
-  subCoard: any;
 
-  defaultCoard: any = { lat: 51.163375, lng: 10.447683 };
+  loading: Loading;
+
+  currentCoords: ILatLng;
+
   geoOptions: NativeGeocoderOptions = {
     useLocale: true,
     defaultLocale: 'de_DE',
@@ -60,11 +65,12 @@ export class RouteFormPage {
     public navCtrl: NavController,
     public navParams: NavParams,
     private routesProvider: RoutesProvider,
-    private geolocation: Geolocation,
+    private locationProvider: LocationProvider,
     private loadingCtrl: LoadingController,
     private alertCtrl: AlertController,
-    private nativeGeocoder: NativeGeocoder) {
-    console.log(JSON.stringify(navParams.data));
+    private nativeGeocoder: NativeGeocoder,
+    public zone: NgZone) {
+    this.locationProvider.startTracking('route-form');
     const paramRoute = navParams.get('route');
     if (paramRoute instanceof Route) {
       this.currentRoute = paramRoute;
@@ -78,67 +84,44 @@ export class RouteFormPage {
   }
 
   ionViewWillEnter() {
-    let loading = this.loadingCtrl.create({
+    this.loading = this.loadingCtrl.create({
       content: 'Einen Moment bitte!'
     });
-    loading.present();
+    this.loading.present();
 
     if (this.editing || this.searchInputValue) {
-      loading.dismiss();
-      this.defaultCoard = this.currentRoute.address.coards;
-      this.initMapsAndSearch();
+
+      this.currentCoords = this.currentRoute.address.coords;
 
     } else {
-      this.geolocation.getCurrentPosition()
-        .then((position) => {
-          if (position.coords) {
-            this.defaultCoard.lat = position.coords.latitude;
-            this.defaultCoard.lng = position.coords.longitude;
+      this.currentCoords = this.locationProvider.coords;
 
-          }
-
-          loading.dismiss();
-          this.initMapsAndSearch();
-
-
-          this.subCoard = this.geolocation.watchPosition().subscribe((data) => {
-            if (data.coords === undefined) return;
-            this.defaultCoard.lat = data.coords.latitude;
-            this.defaultCoard.lng = data.coords.longitude;
-
-
-            this.mapShowCoard(this.defaultCoard);
-          });
-
-
-
-        }).catch(e => {
-          loading.dismiss();
-          this.initMapsAndSearch();
-          this.alertCtrl.create({
-            title: 'Hinweis',
-            subTitle: 'Bitte Zugriff auf Standort erlauben!',
-            buttons: ['Ok']
-          }).present();
-        });
+      this.subCoords = this.locationProvider.coordsChange.subscribe((coords: ILatLng) => {
+        this.mapShowCoard(coords);
+      });
     }
+    this.initMap();
 
   }
 
   private unsubscribeMeMaker() {
-    if (this.subCoard) {
-      this.subCoard.unsubscribe();
-      this.subCoard = null;
+    if (this.subCoords) {
+      this.subCoords.unsubscribe();
+      this.subCoords = null;
     }
   }
+
+
   ionViewWillLeave() {
     this.unsubscribeMeMaker();
+    this.locationProvider.stopTracking('route-form');
     this.navCtrl.popToRoot();
   }
-  initMapsAndSearch(): void {
+
+  initMap(): void {
     this.mapMap = GoogleMaps.create(this.mapDiv.nativeElement, {
       camera: {
-        target: this.defaultCoard,
+        target: this.currentCoords,
         zoom: 15,
         tilt: 30,
       }
@@ -147,27 +130,31 @@ export class RouteFormPage {
       animation: 'DROP',
       flat: true,
       icon: 'red',
-      position: this.defaultCoard
+      position: this.currentCoords
     }).then((marker: Marker) => {
-
-      this.mapMarker = marker;
+      this.zone.run(() => {
+        this.mapMarker = marker;
+      });
 
     }).catch(e => {
       console.log(JSON.stringify(e));
     });
 
+
+    this.loading.dismiss();
+
   }
 
-  mapShowCoard(coards: any): void {
+  mapShowCoard(coords: any): void {
     if (!this.mapMap) return;
-    this.mapMap.setCameraTarget(coards);
+    this.mapMap.setCameraTarget(coords);
     if (!this.mapMarker) return;
-    this.mapMarker.setPosition(coards);
+    this.mapMarker.setPosition(coords);
 
 
   }
   resetAddress(): void {
-    this.mapShowCoard(this.defaultCoard);
+    this.mapShowCoard(this.locationProvider.coords);
     this.currentRoute.address = new Address();
   }
 
@@ -191,7 +178,6 @@ export class RouteFormPage {
 
   }
   onCancel(event) {
-    console.log('CANCELLED!');
     this.resetAddress();
   }
   onInputSearch() {
@@ -201,10 +187,14 @@ export class RouteFormPage {
     this.lockPossibleAddresses = true;
     this.geocodeAddress()
       .then((result: Address[]) => {
-        this.lockPossibleAddresses = false;
-        this.possibleAddresses = result;
+        this.zone.run(() => {
+          this.lockPossibleAddresses = false;
+          this.possibleAddresses = result;
+        });
       }).catch((error: any) => {
-        this.lockPossibleAddresses = false;
+        this.zone.run(() => {
+          this.lockPossibleAddresses = false;
+        });
         console.log(JSON.stringify(error));
       }
       );
@@ -217,8 +207,11 @@ export class RouteFormPage {
     this.geocodeAddress()
       .then((result: Address[]) => {
 
-        if (result.length === 1)
-          this.mapShowCoard(result[0].coards)
+        if (result.length === 1) {
+          this.zone.run(() => {
+            this.mapShowCoard(result[0].coords)
+          });
+        }
 
 
       })
@@ -250,7 +243,7 @@ export class RouteFormPage {
                 }));*/
                 resolve(result.map((item: NativeGeocoderReverseResult) => {
                   const address: Address = Object.assign(new Address(), item);
-                  address.coards = { lat, lng };
+                  address.coords = { lat, lng };
                   address.generateFormatedAdress();
                   return address;
                 }));
@@ -272,7 +265,7 @@ export class RouteFormPage {
     this.currentRoute.address = address;
     if (!this.currentRoute.name)
       this.currentRoute.name = this.currentRoute.address.thoroughfare;
-    this.mapShowCoard(this.currentRoute.address.coards);
+    this.mapShowCoard(this.currentRoute.address.coords);
 
   }
 
@@ -286,22 +279,25 @@ export class RouteFormPage {
       this.checkSearchString();
       this.geocodeAddress()
         .then((result: Address[]) => {
-          this.currentRoute.address = result[0];
-          if (this.editing) {
-            this.routesProvider.changeRoute(this.currentRoute);
-          } else {
-            this.routesProvider.addRoute(this.currentRoute);
-          }
+          this.zone.run(() => {
+            this.currentRoute.address = result[0];
+            if (this.editing) {
+              this.routesProvider.changeRoute(this.currentRoute);
+            } else {
+              this.routesProvider.addRoute(this.currentRoute);
+            }
 
-          this.navCtrl.pop();
-
+            this.navCtrl.pop();
+          });
         })
         .catch((error: any) => {
-          this.alertCtrl.create({
-            title: 'Hinweis',
-            subTitle: 'Adresse konnte nicht gefunden werden! Geben Sie gültige Adressen ein!',
-            buttons: ['Ok']
-          }).present();
+          this.zone.run(() => {
+            this.alertCtrl.create({
+              title: 'Hinweis',
+              subTitle: 'Adresse konnte nicht gefunden werden! Geben Sie gültige Adressen ein!',
+              buttons: ['Ok']
+            }).present();
+          });
         });
 
 
