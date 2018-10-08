@@ -35,13 +35,13 @@ export class MyApp {
       this.splashScreen.hide();
 
 
-      this.routesProvider.askCurrentRouteSolved();
+      this.routesProvider.checkChangableRoute();
     });
 
 
 
     this.platform.resume.subscribe(e => {
-      this.routesProvider.askCurrentRouteSolved();
+      this.routesProvider.checkChangableRoute();
     });
 
   }

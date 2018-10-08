@@ -10,7 +10,7 @@
 <ion-content class="outer-content">
   <ion-list>
     <ion-searchbar placeholder="Adresssuche beginnen" [(ngModel)]="searchInputValue" (ionInput)="onInputSearch()"
-      [showCancelButton]="true" (ionCancel)="onCancel($event)">
+      (ionCancel)="onCancel($event)">
     </ion-searchbar>
 
     <ion-item *ngFor="let address of possibleAddresses" (click)="addressSelected(address)">
@@ -30,7 +30,7 @@
     </ion-item>
     <ion-item *ngFor="let info of getInfoKeys()">
       <ion-label color="primary" fixed>{{ addressInfos[info] }}</ion-label>
-      <ion-input placeholder="{{ addressInfos[info] }} eingeben" (ionChange)="onChangeProps()" [(ngModel)]="currentRoute.address[info]"
+      <ion-input placeholder="{{ addressInfos[info] }} eingeben" (focusout)="onPropsFocusOut($event)" [(ngModel)]="currentRoute.address[info]"
         clearInput></ion-input>
     </ion-item>
     <ion-item>

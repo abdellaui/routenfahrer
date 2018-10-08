@@ -200,8 +200,9 @@ export class RouteFormPage {
       );
   }
 
+  onPropsFocusOut(event): void {
 
-  onChangeProps(): void {
+
     if (this.checkSearchString()) return;
     this.searchInputValue = this.currentRoute.address.formattedAddress;
     this.geocodeAddress()
@@ -291,6 +292,7 @@ export class RouteFormPage {
           });
         })
         .catch((error: any) => {
+          console.log(JSON.stringify(error));
           this.zone.run(() => {
             this.alertCtrl.create({
               title: 'Hinweis',

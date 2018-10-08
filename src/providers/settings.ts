@@ -28,6 +28,11 @@ export class SettingsProvider {
     this.configs.showTaskOnly = !this.configs.showTaskOnly;
     this.storeConfigs();
   }
+
+  toggleAutoRun() {
+    this.configs.autoRun = !this.configs.autoRun;
+    this.storeConfigs();
+  }
   storeConfigs(): void {
     this.storage.set('configs', this.configs);
   }

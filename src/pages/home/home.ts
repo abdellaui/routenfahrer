@@ -24,7 +24,7 @@ export class HomePage {
   doRefresh(event: any): void {
     this.alertCtrl.create({
       title: 'Hinweis',
-      message: 'Ihr aktueller Fahrtenhistorie wird zurückgesetzt!',
+      message: 'Ihr aktuelle Fahrtenhistorie wird zurückgesetzt!',
       buttons: [
         {
           text: 'Abbrechen',

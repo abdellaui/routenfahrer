@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { LaunchNavigator } from '@ionic-native/launch-navigator';
 import { Storage } from '@ionic/storage';
-import { ActionSheetController, AlertController, ToastController } from 'ionic-angular';
+import { ActionSheet, ActionSheetController, AlertController, ToastController } from 'ionic-angular';
 import { ReorderIndexes } from 'ionic-angular/umd/components/item/item-reorder';
 
 import { Address } from '../models/Address';
@@ -26,7 +26,8 @@ export class RoutesProvider {
     private launchNavigator: LaunchNavigator,
     private alertCtrl: AlertController,
     private settingsProvider: SettingsProvider,
-    public actionSheetCtrl: ActionSheetController) {
+    private actionSheetCtrl: ActionSheetController,
+    private zone: NgZone) {
 
     this.storage.ready().then(() => {
 
@@ -179,76 +180,100 @@ export class RoutesProvider {
     this.currentRoute.done = true;
     this.storeRoutes();
   }
-  askCurrentRouteSolved(): void {
-    if (!this.isPlaying) return;
-    this.actionSheetCtrl.create({
-      title: `${this.currentRoute.name}`,
+  askCurrentRouteSolved(): ActionSheet {
+    return this.actionSheetCtrl.create({
+      title: this.currentRoute.name,
       enableBackdropDismiss: false,
       buttons: [
-
         {
-          text: 'Route wird noch gefahren',
+          icon: 'checkmark',
+          text: 'Am Ziel angekommen!',
+
           handler: () => {
-            console.log('Archive clicked');
+            this.zone.run(() => {
+              this.stop();
+              this.routeIsDone();
+              this.next();
+              this.autoStart();
+            });
           }
         },
         {
           text: 'Route abbrechen',
           role: 'destructive',
           handler: () => {
-            this.stop();
+            this.zone.run(() => {
+              this.stop();
+            });
+
           }
         },
         {
-          icon: 'checkmark',
-          text: 'Nächstes Ziel!',
+          text: 'Route wird noch gefahren',
           role: 'cancel',
           handler: () => {
-            this.stop();
-            this.routeIsDone();
-            this.next();
           }
-        }
+        },
       ]
-    }).present();
-
+    });
   }
   stop(): void {
     this.setIsPlaying(false);
   }
 
+  checkChangableRoute(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      if (this.isPlaying) {
+        this.askCurrentRouteSolved().present();
+        this.askCurrentRouteSolved().onDidDismiss(() => {
+          resolve(true);
+        });
+      } else {
+        resolve(false);
+      }
+    });
+  }
 
   prev(): void {
-    if (this.isPlaying) return this.askCurrentRouteSolved();
-    this.setCurrentIndex(this.findNextTask(this.currentIndex, false));
+    this.checkChangableRoute().then(() => {
+      this.setCurrentIndex(this.findNextTask(this.currentIndex, false));
+    });
   }
 
   next(): void {
-    if (this.isPlaying) return this.askCurrentRouteSolved();
-    this.setCurrentIndex(this.findNextTask(this.currentIndex, true));
+    this.checkChangableRoute().then((bearbeitet) => {
+      console.log('bearbeitet' + bearbeitet);
+      this.setCurrentIndex(this.findNextTask(this.currentIndex, true));
+    });
   }
 
   wantToPlay(index: number) {
-    this.setIsPlaying(false);
-    const route = this.routes[index];
-    if (route) {
+    this.checkChangableRoute().then(() => {
 
-      route.switchedActive = !route.isTodayTask();
-      route.done = false;
-      this.storeRoutes();
-      this.setCurrentIndex(index);
+      const route = this.routes[index];
+      if (route) {
 
-      //this.startNaviOnCurrentRoute();
-    }
+        route.switchedActive = !route.isTodayTask();
+        route.done = false;
+        this.storeRoutes();
+        this.setCurrentIndex(index);
+        this.autoStart();
+
+      }
+    });
+  }
+  autoStart(): void {
+    if (this.settingsProvider.configs.autoRun)
+      this.startNaviOnCurrentRoute();
   }
   start(): void {
 
     this.startNaviOnCurrentRoute();
-    this.setIsPlaying(true);
 
   }
 
   startNaviOnCurrentRoute(): void {
+    this.setIsPlaying(true);
     this.launchNavigator.navigate(this.currentRoute.address.formattedAddress)
       .then(
         success => console.log('Launched navigator'),

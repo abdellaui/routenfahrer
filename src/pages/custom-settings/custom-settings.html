@@ -31,12 +31,20 @@
       Routen
     </ion-list-header>
     <ion-item>
-      <ion-label>Nur zufahrende Routen anzeigen</ion-label>
+      <ion-label>
+        Nur zufahrende Routen anzeigen
+      </ion-label>
       <ion-toggle color="secondary" [checked]="settingsProvider.configs.showTaskOnly" (ionChange)="settingsProvider.toggleShowTaskOnly()"></ion-toggle>
     </ion-item>
-
+    <ion-item>
+      <ion-label>
+        Automatisch fortführen
+        <p>Das nächste Ziel automatisch navigiert</p>
+      </ion-label>
+      <ion-toggle color="secondary" [checked]="settingsProvider.configs.autoRun" (ionChange)="settingsProvider.toggleAutoRun()"></ion-toggle>
+    </ion-item>
     <button ion-item (click)="turnAllActiveRoutesOff()" detail-none>
-      Alle Routen zurücksetzen!
+      Status von Routen zurücksetzen
     </button>
 
     <button ion-item (click)="deleteAllRoutes()" class="delBtn" detail-none>
