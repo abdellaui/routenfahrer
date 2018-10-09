@@ -1,6 +1,8 @@
-<ion-list *ngIf="!showEmptyInfo()" margin-top margin-left>
-  Aktuelle keine Routen verfügbar!
-</ion-list>
+<ion-card *ngIf="!showEmptyInfo()">
+  <ion-card-content>
+    Aktuell keine Ziele verfügbar!
+  </ion-card-content>
+</ion-card>
 <ion-list #listOfRoutes *ngIf="routesProvider.routes.length" [reorder]="canReorder" (ionItemReorder)="this.routesProvider.reorderRoutes($event)">
 
 

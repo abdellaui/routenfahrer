@@ -7,7 +7,7 @@
 <ion-header>
 
   <ion-navbar>
-    <ion-title>Einstellunngen</ion-title>
+    <ion-title>Einstellungen</ion-title>
   </ion-navbar>
 
 
@@ -21,34 +21,43 @@
       <ion-avatar item-start>
         <img src="/assets/imgs/logo.png">
       </ion-avatar>
-      <h2>Routenplanner</h2>
-      <p>v.0.01.1</p>
+      <h2>Routenplaner</h2>
+      <p>v.1.0.0</p>
     </ion-item>
+    <button ion-item (click)="openPage('Bedienungshilfe')">
+      Bedienungshilfe
+    </button>
+    <button ion-item (click)="openPage('Information')">
+      Information
+    </button>
+    <a ion-item href="https://paypal.me/mrsahin">
+      Unterstützen
+    </a>
   </ion-list>
 
   <ion-list>
     <ion-list-header>
-      Routen
+      Route
     </ion-list-header>
     <ion-item>
       <ion-label>
-        Nur zufahrende Routen anzeigen
+        Nur zufahrende Ziele anzeigen
       </ion-label>
       <ion-toggle color="secondary" [checked]="settingsProvider.configs.showTaskOnly" (ionChange)="settingsProvider.toggleShowTaskOnly()"></ion-toggle>
     </ion-item>
     <ion-item>
       <ion-label>
         Automatisch fortführen
-        <p>Das nächste Ziel automatisch navigiert</p>
+        <p>Das nächste Ziel automatisch navigieren</p>
       </ion-label>
       <ion-toggle color="secondary" [checked]="settingsProvider.configs.autoRun" (ionChange)="settingsProvider.toggleAutoRun()"></ion-toggle>
     </ion-item>
     <button ion-item (click)="turnAllActiveRoutesOff()" detail-none>
-      Status von Routen zurücksetzen
+      Status von Zielen zurücksetzen
     </button>
 
     <button ion-item (click)="deleteAllRoutes()" class="delBtn" detail-none>
-      Alle Routen löschen
+      Alle Ziele löschen
     </button>
   </ion-list>
   <ion-list radio-group [ngModel]="selectedNavApp">
@@ -57,7 +66,7 @@
       Navigation
     </ion-list-header>
 
-    <ion-item *ngIf="!aviableNavApp">
+    <ion-item *ngIf="!aviableNavApp.length">
       Keine Navigationsanwendungen verfügbar!
       <p>Installieren Sie gängige Navigationen!</p>
     </ion-item>

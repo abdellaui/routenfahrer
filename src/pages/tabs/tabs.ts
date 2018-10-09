@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 
 import { CustomSettingsPage } from '../custom-settings/custom-settings';
-import { HomePage } from '../home/home';
-import { RoutenMapPage } from '../routen-map/routen-map';
+import { MapPage } from '../map/map';
+import { RoutePage } from '../route/route';
 
 @Component({
   templateUrl: 'tabs.html'
@@ -10,10 +10,10 @@ import { RoutenMapPage } from '../routen-map/routen-map';
 export class TabsPage {
 
 
-  tabRouten = HomePage;
-  tabRoutenMap = RoutenMapPage;
+  tabRoute = RoutePage;
+  tabRoutenMap = MapPage;
   tabSettings = CustomSettingsPage;
   constructor() {
-
   }
+
 }

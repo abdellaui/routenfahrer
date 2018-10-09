@@ -1,10 +1,10 @@
 import { Component, Input, ViewChild } from '@angular/core';
 import { List, NavController } from 'ionic-angular';
 
-import { Route } from '../../models/route';
-import { RouteFormPage } from '../../pages/route-form/route-form';
-import { RoutesProvider } from '../../providers/routes';
-import { SettingsProvider } from '../../providers/settings';
+import { Route } from '../../../../models/route';
+import { RoutesProvider } from '../../../../providers/routes';
+import { SettingsProvider } from '../../../../providers/settings';
+import { RouteFormPage } from '../../route-form/route-form';
 
 @Component({
   selector: 'route-liste',
@@ -15,9 +15,9 @@ export class RouteListeComponent {
 
   @ViewChild('listOfRoutes', { read: List }) listView: List;
 
-  constructor(public routesProvider: RoutesProvider,
-    public settingsProvider: SettingsProvider,
-    public navCtrl: NavController) {
+  constructor(private routesProvider: RoutesProvider,
+    private settingsProvider: SettingsProvider,
+    private navCtrl: NavController) {
   }
 
   edit(item: Route) {
@@ -38,8 +38,8 @@ export class RouteListeComponent {
   }
 
   play(index: number) {
-    this.listView.closeSlidingItems();
     this.routesProvider.wantToPlay(index);
+    this.listView.closeSlidingItems();
   }
 
 

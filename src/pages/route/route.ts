@@ -1,23 +1,22 @@
 import { Component } from '@angular/core';
-import { AlertController, ModalController, NavController } from 'ionic-angular';
+import { AlertController, NavController } from 'ionic-angular';
 
 import { RoutesProvider } from '../../providers/routes';
-import { RouteFormPage } from '../route-form/route-form';
+import { RouteFormPage } from './route-form/route-form';
 
 @Component({
-  selector: 'page-home',
-  templateUrl: 'home.html',
+  selector: 'page-route',
+  templateUrl: 'route.html',
 })
-export class HomePage {
+export class RoutePage {
 
   canCreate: boolean = true;
   reordering: boolean = false;
 
   constructor(
-    public navCtrl: NavController,
-    public routesProvider: RoutesProvider,
-    public modalCtrl: ModalController,
-    public alertCtrl: AlertController) {
+    private navCtrl: NavController,
+    private routesProvider: RoutesProvider,
+    private alertCtrl: AlertController) {
 
   }
 

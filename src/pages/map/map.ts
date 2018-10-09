@@ -1,36 +1,37 @@
-import { Component, ElementRef, NgZone, ViewChild } from '@angular/core';
+import { Component, ElementRef, NgZone, OnDestroy, ViewChild } from '@angular/core';
 import { GoogleMap, GoogleMaps, ILatLng, Marker, MarkerOptions } from '@ionic-native/google-maps';
-import { Loading, LoadingController, NavController } from 'ionic-angular';
+import { Loading, LoadingController } from 'ionic-angular';
+import { first } from 'rxjs/operators';
 
 import { Route } from '../../models/Route';
 import { LocationProvider } from '../../providers/location';
 import { RoutesProvider } from '../../providers/routes';
 
 @Component({
-  selector: 'page-routen-map',
-  templateUrl: 'routen-map.html',
+  selector: 'page-map',
+  templateUrl: 'map.html',
 })
-export class RoutenMapPage {
+export class MapPage implements OnDestroy {
 
   @ViewChild('map') map: ElementRef;
   mapMap: GoogleMap;
   markMe: Marker;
   loading: Loading;
 
-  constructor(public navCtrl: NavController,
+  constructor(
     private loadingCtrl: LoadingController,
     private routesProvider: RoutesProvider,
     private locationProvider: LocationProvider,
-    public zone: NgZone) {
+    private zone: NgZone) {
     this.loading = this.loadingCtrl.create({
       content: 'Einen Moment bitte!'
     });
     this.loading.present();
-    this.locationProvider.startTracking('routen-map');
+    this.locationProvider.startTracking('map');
   }
 
   ionViewDidLoad() {
-    this.locationProvider.coordsChange.first().subscribe(() => {
+    this.locationProvider.coordsChange.pipe(first()).subscribe(() => {
       this.initMap();
     });
 
@@ -44,12 +45,17 @@ export class RoutenMapPage {
 
   ionViewWillLeave() {
 
-    this.locationProvider.stopTracking('routen-map');
+    this.locationProvider.stopTracking('map');
   }
-
+  ngOnDestroy() {
+    if (this.mapMap) {
+      this.mapMap.destroy();
+      this.mapMap = null;
+    }
+  }
   ionViewWillEnter() {
-    this.locationProvider.startTracking('routen-map');
-    if (!this.mapMap || this.loading.isOverlay) return;
+    this.locationProvider.startTracking(' map');
+    if (!this.mapMap) return;
     this.markMe = null;
     this.mapMap.clear();
     this.mapMap.setCameraTarget(this.locationProvider.coords);
@@ -59,9 +65,11 @@ export class RoutenMapPage {
 
     this.routesProvider.routes.forEach((el: Route) => {
 
+      const color = el.canRide() ? 'blue' : el.isTask() ? 'green' : 'black';
       this.addMarker({
-        title: `<h3>${el.name}</h3><p>${el.address.formattedAddress}</p>`,
-        icon: 'red',
+        title: `${el.name}`,
+        snippet: el.address.formattedAddress,
+        icon: color,
         flat: true,
         position: el.address.coords
       }).catch(e => {
@@ -80,6 +88,7 @@ export class RoutenMapPage {
           tilt: 0,
         }
       });
+
     this.addMeMarker();
     this.loading.dismiss();
   }
@@ -93,7 +102,7 @@ export class RoutenMapPage {
   private addMeMarker() {
     this.addMarker({
       title: 'Sie',
-      icon: 'blue',
+      icon: 'red',
       flat: true,
       position: this.locationProvider.coords
     }).then((marker: Marker) => {

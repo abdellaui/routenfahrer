@@ -1,4 +1,4 @@
-import { Component, NgZone, ViewChild } from '@angular/core';
+import { Component, ElementRef, NgZone, ViewChild } from '@angular/core';
 import { GoogleMap, GoogleMaps, ILatLng, Marker } from '@ionic-native/google-maps';
 import {
   NativeGeocoder,
@@ -6,26 +6,27 @@ import {
   NativeGeocoderOptions,
   NativeGeocoderReverseResult,
 } from '@ionic-native/native-geocoder';
-import { AlertController, Loading, LoadingController, NavController, NavParams } from 'ionic-angular';
+import { AlertController, IonicPage, Loading, LoadingController, NavController, NavParams } from 'ionic-angular';
 import { Subscription } from 'rxjs/Subscription';
 
-import { Address } from '../../models/Address';
-import { Route } from '../../models/Route';
-import { LocationProvider } from '../../providers/location';
-import { RoutesProvider } from '../../providers/routes';
+import { Address } from '../../../models/Address';
+import { Route } from '../../../models/Route';
+import { LocationProvider } from '../../../providers/location';
+import { RoutesProvider } from '../../../providers/routes';
 
-declare var Object;
 
+@IonicPage()
 @Component({
   selector: 'page-route-form',
   templateUrl: 'route-form.html'
 })
 export class RouteFormPage {
-  @ViewChild('sMap') mapDiv: any;
+  @ViewChild('sMap') mapDiv: ElementRef;
+
   mapMap: GoogleMap
   mapMarker: Marker;
   subCoords: Subscription;
-
+  tabbarDiv: any;
   searchInputValue: string;
   lockPossibleAddresses: boolean = false;
   possibleAddresses: Address[];
@@ -62,16 +63,16 @@ export class RouteFormPage {
   };
 
   constructor(
-    public navCtrl: NavController,
-    public navParams: NavParams,
+    private navCtrl: NavController,
+    private navParams: NavParams,
     private routesProvider: RoutesProvider,
     private locationProvider: LocationProvider,
     private loadingCtrl: LoadingController,
     private alertCtrl: AlertController,
     private nativeGeocoder: NativeGeocoder,
-    public zone: NgZone) {
+    private zone: NgZone) {
     this.locationProvider.startTracking('route-form');
-    const paramRoute = navParams.get('route');
+    const paramRoute = this.navParams.get('route');
     if (paramRoute instanceof Route) {
       this.currentRoute = paramRoute;
       this.editing = true;
@@ -79,11 +80,11 @@ export class RouteFormPage {
       this.currentRoute = routesProvider.getDummy();
 
     }
-
     this.searchInputValue = this.currentRoute.address.formattedAddress;
-  }
 
+  }
   ionViewWillEnter() {
+    this.tabbarDiv = document.querySelector('.tabbar').classList;
     this.loading = this.loadingCtrl.create({
       content: 'Einen Moment bitte!'
     });
@@ -101,7 +102,7 @@ export class RouteFormPage {
       });
     }
     this.initMap();
-
+    this.tabbarDiv.remove('show-tabbar');
   }
 
   private unsubscribeMeMaker() {
@@ -113,12 +114,13 @@ export class RouteFormPage {
 
 
   ionViewWillLeave() {
+    this.tabbarDiv.add('show-tabbar');
     this.unsubscribeMeMaker();
     this.locationProvider.stopTracking('route-form');
-    this.navCtrl.popToRoot();
   }
 
   initMap(): void {
+
     this.mapMap = GoogleMaps.create(this.mapDiv.nativeElement, {
       camera: {
         target: this.currentCoords,
@@ -126,6 +128,7 @@ export class RouteFormPage {
         tilt: 30,
       }
     });
+
     this.mapMap.addMarker({
       animation: 'DROP',
       flat: true,
@@ -140,9 +143,7 @@ export class RouteFormPage {
       console.log(JSON.stringify(e));
     });
 
-
     this.loading.dismiss();
-
   }
 
   mapShowCoard(coords: any): void {

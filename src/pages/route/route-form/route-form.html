@@ -1,13 +1,14 @@
 <ion-header>
 
   <ion-navbar>
-    <ion-title>{{(editing)?'Route bearbeiten':'Route erstellen'}}</ion-title>
+    <ion-title>Ziel {{(editing)?'bearbeiten':'erstellen'}}</ion-title>
   </ion-navbar>
 
 </ion-header>
 
 
 <ion-content class="outer-content">
+
   <ion-list>
     <ion-searchbar placeholder="Adresssuche beginnen" [(ngModel)]="searchInputValue" (ionInput)="onInputSearch()"
       (ionCancel)="onCancel($event)">

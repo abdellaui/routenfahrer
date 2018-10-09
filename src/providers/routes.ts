@@ -142,7 +142,7 @@ export class RoutesProvider {
 
     this.alertCtrl.create({
       title: 'Bestätige Löschung',
-      message: 'Bestätigen Sie die Löschung der Route!',
+      message: 'Bestätigen Sie die Löschung des Zieles!',
       buttons: [
         {
           text: 'Abbrechen',
@@ -154,7 +154,6 @@ export class RoutesProvider {
           handler: () => {
             this.routes.splice(this.routes.indexOf(route), 1);
             this.storeRoutes();
-            this.presentToastr('Route wurde gelöscht!');
           }
         }
       ]
@@ -167,7 +166,7 @@ export class RoutesProvider {
     this.routes.push(route);
     this.dummy = new Route();
     this.storeRoutes();
-    // this.presentToastr('Route wurde erfolgreich erstellt!');
+
   }
 
   reset(): void {
@@ -191,8 +190,8 @@ export class RoutesProvider {
 
           handler: () => {
             this.zone.run(() => {
-              this.stop();
               this.routeIsDone();
+              this.stop();
               this.next();
               this.autoStart();
             });
@@ -241,8 +240,7 @@ export class RoutesProvider {
   }
 
   next(): void {
-    this.checkChangableRoute().then((bearbeitet) => {
-      console.log('bearbeitet' + bearbeitet);
+    this.checkChangableRoute().then(() => {
       this.setCurrentIndex(this.findNextTask(this.currentIndex, true));
     });
   }
@@ -273,6 +271,7 @@ export class RoutesProvider {
   }
 
   startNaviOnCurrentRoute(): void {
+    if (!this.currentRoute) return;
     this.setIsPlaying(true);
     this.launchNavigator.navigate(this.currentRoute.address.formattedAddress)
       .then(
@@ -285,7 +284,7 @@ export class RoutesProvider {
     this.setRoutes([]);
     this.storeRoutes();
 
-    this.presentToastr('Alle Routen wurden gelöscht!');
+    this.presentToastr('Alle Ziele wurden gelöscht!');
   }
 
   turnAllActiveRoutesOff(): void {
@@ -294,7 +293,7 @@ export class RoutesProvider {
     });
     this.storeRoutes();
 
-    this.presentToastr('Alle Routen wurden zurückgesetzt!');
+    this.presentToastr('Alle Ziele wurden zurückgesetzt!');
   }
 
   presentToastr(_message: string): void {

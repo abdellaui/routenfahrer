@@ -5,7 +5,6 @@ import { Configs } from '../models/Configs';
 
 @Injectable()
 export class SettingsProvider {
-
   configs: Configs = new Configs();
 
   constructor(private storage: Storage) {

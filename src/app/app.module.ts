@@ -3,11 +3,9 @@ import { BrowserModule } from '@angular/platform-browser';
 import { IonicStorageModule } from '@ionic/storage';
 import { IonicApp, IonicModule } from 'ionic-angular';
 
-import { ComponentsModule } from '../components/components.module';
-import { CustomSettingsPage } from '../pages/custom-settings/custom-settings';
-import { HomePage } from '../pages/home/home';
-import { RouteFormPage } from '../pages/route-form/route-form';
-import { RoutenMapPage } from '../pages/routen-map/routen-map';
+import { CustomSettingsPageModule } from '../pages/custom-settings/custom-settings.module';
+import { MapPageModule } from '../pages/map/map.module';
+import { RoutePageModule } from '../pages/route/route.module';
 import { TabsPage } from '../pages/tabs/tabs';
 import { MyApp } from './app.component';
 import { AppProviders } from './app.providers';
@@ -15,26 +13,29 @@ import { AppProviders } from './app.providers';
 @NgModule({
   declarations: [
     MyApp,
-    HomePage,
-    TabsPage,
-    RouteFormPage,
-    RoutenMapPage,
-    CustomSettingsPage
+    TabsPage
   ],
   imports: [
     BrowserModule,
-    ComponentsModule,
-    IonicModule.forRoot(MyApp, { swipeBackEnabled: true }),
-    IonicStorageModule.forRoot()
+    MapPageModule,
+    RoutePageModule,
+    CustomSettingsPageModule,
+    IonicModule.forRoot(MyApp,
+      {
+        backButtonText: 'Zurück',
+        tabsHideOnSubPages: true,
+        swipeBackEnabled: true
+      }
+    ),
+    IonicStorageModule.forRoot({
+      name: '__routeplaner',
+      driverOrder: ['sqlite', 'websql', 'indexeddb']
+    })
   ],
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
-    HomePage,
-    TabsPage,
-    RouteFormPage,
-    RoutenMapPage,
-    CustomSettingsPage
+    TabsPage
   ],
   providers: AppProviders.getProviders()
 })

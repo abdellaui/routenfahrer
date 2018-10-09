@@ -1,16 +1,16 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="uk.sahin.routeplaner" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Routeplaner</name>
-    <description>Dein täglicher Helfer.</description>
-    <author email="abdullah@sahin.uk" href="https://sahin.uk/">SAHIN</author>
-    <content src="index.html" />
+    <name>Routenplaner</name>
+    <description>Ihr täglicher Helfer.</description>
+    <author email="abdullah@sahin.uk" href="https://sahin.uk/">Abdullah Sahin</author>
+    <content original-src="index.html" src="http://192.168.10.5:8100" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
-    <allow-intent href="tel:*" />
-    <allow-intent href="sms:*" />
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
+    <preference name="ShowSplashScreenSpinner" value="false" />
+    <preference name="AutoHideSplashScreen" value="false" />
     <preference name="ScrollEnabled" value="false" />
     <preference name="android-minSdkVersion" value="19" />
     <preference name="BackupWebStorage" value="none" />
@@ -42,7 +42,7 @@
     </platform>
     <platform name="ios">
         <edit-config file="*-Info.plist" mode="merge" target="NSLocationWhenInUseUsageDescription">
-            <string>Um bessere Suchvorschläge machen zu können!</string>
+            <string>Um Sie auf der Karte darzustellen.</string>
         </edit-config>
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
@@ -86,10 +86,10 @@
     <plugin name="cordova-plugin-ionic-webview" spec="^2.0.0" />
     <plugin name="cordova-plugin-ionic-keyboard" spec="^2.0.5" />
     <plugin name="cordova-plugin-geolocation" spec="4.0.1">
-        <variable name="GEOLOCATION_USAGE_DESCRIPTION" value="To locate you" />
+        <variable name="GEOLOCATION_USAGE_DESCRIPTION" value="Um Sie zu lokalisieren." />
     </plugin>
     <plugin name="uk.co.workingedge.phonegap.plugin.launchnavigator" spec="4.2.2">
-        <variable name="LOCATION_USAGE_DESCRIPTION" value="This app requires access to your location for navigation purposes" />
+        <variable name="LOCATION_USAGE_DESCRIPTION" value="Diese Anwendung benötigt Zugriff auf Standort." />
     </plugin>
     <plugin name="cordova-plugin-googlemaps" spec="2.4.6">
         <variable name="API_KEY_FOR_ANDROID" value="AIzaSyAKK991AzhbVbZWSrv-52YGlsMaEzlHqpA" />
@@ -98,20 +98,10 @@
         <variable name="ANDROID_SUPPORT_V4_VERSION" value="27.+" />
     </plugin>
     <plugin name="cordova-plugin-nativegeocoder" spec="3.1.2">
-        <variable name="LOCATION_WHEN_IN_USE_DESCRIPTION" value="Use geocoder service" />
+        <variable name="LOCATION_WHEN_IN_USE_DESCRIPTION" value="Vewendet Geocoder Service um Adressen in Kooardinaten zu transformieren." />
     </plugin>
-    <plugin name="cordova-plugin-mauron85-background-geolocation" spec="~2.3.6">
-        <variable name="GOOGLE_PLAY_SERVICES_VERSION" value="11+" />
-        <variable name="ANDROID_SUPPORT_LIBRARY_VERSION" value="23+" />
-        <variable name="ICON" value="@mipmap/icon" />
-        <variable name="SMALL_ICON" value="@mipmap/icon" />
-        <variable name="ACCOUNT_NAME" value="@string/app_name" />
-        <variable name="ACCOUNT_LABEL" value="@string/app_name" />
-        <variable name="ACCOUNT_TYPE" value="$PACKAGE_NAME.account" />
-        <variable name="CONTENT_AUTHORITY" value="$PACKAGE_NAME" />
-        <variable name="ALWAYS_USAGE_DESCRIPTION" value="This app always requires location tracking" />
-    </plugin>
-    <engine name="android" spec="7.1.1" />
+    <allow-navigation href="http://192.168.10.5:8100" sessionid="6a511828" />
     <engine name="browser" spec="5.0.4" />
+    <engine name="android" spec="~7.1.1" />
     <engine name="ios" spec="~4.5.5" />
 </widget>

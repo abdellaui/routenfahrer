@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { LaunchNavigator } from '@ionic-native/launch-navigator';
-import { AlertController, NavController, NavParams } from 'ionic-angular';
+import { AlertController, NavController } from 'ionic-angular';
 
 import { NavigationApp } from '../../models/NavigationApp';
 import { RoutesProvider } from '../../providers/routes';
 import { SettingsProvider } from '../../providers/settings';
-
+import { BedienungshilfePage } from './bedienungshilfe/bedienungshilfe';
+import { InformationPage } from './information/information';
 
 @Component({
   selector: 'page-custom-settings',
@@ -14,14 +15,13 @@ import { SettingsProvider } from '../../providers/settings';
 
 export class CustomSettingsPage {
   selectedNavApp: string;
-  aviableNavApp: NavigationApp[];
+  aviableNavApp: NavigationApp[] = [];
 
-  constructor(public navCtrl: NavController,
-    public navParams: NavParams,
-    public launchNavigator: LaunchNavigator,
-    public settingsProvider: SettingsProvider,
-    public routesProvider: RoutesProvider,
-    public alertCtrl: AlertController) {
+  constructor(private navCtrl: NavController,
+    private launchNavigator: LaunchNavigator,
+    private settingsProvider: SettingsProvider,
+    private routesProvider: RoutesProvider,
+    private alertCtrl: AlertController) {
 
 
     this.launchNavigator.availableApps().then((result: string[]) => {
@@ -66,7 +66,7 @@ export class CustomSettingsPage {
   turnAllActiveRoutesOff(): void {
     this.alertCtrl.create({
       title: 'Achtung',
-      message: 'Sie setzen alle Routen wieder zurück, welche Sie vorher manuell aktiviert oder deaktiviert haben! Dieser Schritt kann  nicht rückgängig gemacht werden!',
+      message: 'Sie setzen alle Routen zurück, welche Sie vorher manuell aktiviert oder deaktiviert haben! Dieser Schritt kann  nicht rückgängig gemacht werden!',
       buttons: [
         {
           text: 'Abbrechen',
@@ -87,7 +87,7 @@ export class CustomSettingsPage {
   deleteAllRoutes(): void {
     this.alertCtrl.create({
       title: 'Achtung',
-      message: 'Sie löschen alle Routen! Dieser Schritt kann  nicht rückgängig gemacht werden!',
+      message: 'Sie löschen alle Routen! Dieser Schritt kann nicht rückgängig gemacht werden!',
       buttons: [
         {
           text: 'Abbrechen',
@@ -106,5 +106,11 @@ export class CustomSettingsPage {
     }).present();
   }
 
+  openPage(name: string): void {
+    if (name === 'Information')
+      this.navCtrl.push(InformationPage)
+    if (name === 'Bedienungshilfe')
+      this.navCtrl.push(BedienungshilfePage)
+  }
 
 }

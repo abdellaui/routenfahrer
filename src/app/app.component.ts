@@ -24,6 +24,8 @@ export class MyApp {
 
 
 
+      this.statusBar.styleDefault();
+      this.splashScreen.hide();
 
       Environment.setEnv({
         'API_KEY_FOR_BROWSER_RELEASE': 'AIzaSyAKK991AzhbVbZWSrv-52YGlsMaEzlHqpA',
@@ -31,10 +33,6 @@ export class MyApp {
       });
 
       Environment.setBackgroundColor("#efeff4");
-      this.statusBar.styleDefault();
-      this.splashScreen.hide();
-
-
       this.routesProvider.checkChangableRoute();
     });
 
