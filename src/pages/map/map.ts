@@ -1,5 +1,5 @@
 import { Component, ElementRef, NgZone, OnDestroy, ViewChild } from '@angular/core';
-import { GoogleMap, GoogleMaps, ILatLng, Marker, MarkerOptions } from '@ionic-native/google-maps';
+import { GoogleMap, GoogleMaps, ILatLng, Marker } from '@ionic-native/google-maps';
 import { Loading, LoadingController } from 'ionic-angular';
 import { first } from 'rxjs/operators';
 
@@ -27,7 +27,6 @@ export class MapPage implements OnDestroy {
       content: 'Einen Moment bitte!'
     });
     this.loading.present();
-    this.locationProvider.startTracking('map');
   }
 
   ionViewDidLoad() {
@@ -57,26 +56,29 @@ export class MapPage implements OnDestroy {
     this.locationProvider.startTracking(' map');
     if (!this.mapMap) return;
     this.markMe = null;
-    this.mapMap.clear();
-    this.mapMap.setCameraTarget(this.locationProvider.coords);
-
-    this.addMeMarker();
+    this.mapMap.clear().then(() => {
 
 
-    this.routesProvider.routes.forEach((el: Route) => {
+      this.mapMap.setCameraTarget(this.locationProvider.coords);
 
-      const color = el.canRide() ? 'blue' : el.isTask() ? 'green' : 'black';
-      this.addMarker({
-        title: `${el.name}`,
-        snippet: el.address.formattedAddress,
-        icon: color,
-        flat: true,
-        position: el.address.coords
-      }).catch(e => {
-        console.log(JSON.stringify(e));
+      this.addMeMarker();
+
+
+      this.routesProvider.routes.forEach((el: Route) => {
+
+        const color = el.canRide() ? 'blue' : el.isTask() ? 'green' : 'black';
+        this.mapMap.addMarker({
+          title: `${el.name}`,
+          snippet: el.address.formattedAddress,
+          icon: color,
+          position: el.address.coords
+        }).catch(e => {
+          console.log(JSON.stringify(e));
+        });
+
       });
 
-    });
+    }).catch(e => { console.log(JSON.stringify(e)); });
 
   }
   initMap() {
@@ -100,10 +102,9 @@ export class MapPage implements OnDestroy {
 
   }
   private addMeMarker() {
-    this.addMarker({
+    this.mapMap.addMarker({
       title: 'Sie',
       icon: 'red',
-      flat: true,
       position: this.locationProvider.coords
     }).then((marker: Marker) => {
 
@@ -115,8 +116,5 @@ export class MapPage implements OnDestroy {
     });
   }
 
-  addMarker(option: MarkerOptions): Promise<Marker> {
-    return this.mapMap.addMarker(option);
-  }
 
 }

@@ -2,7 +2,7 @@
   <ion-toolbar>
     <ion-title>Route</ion-title>
 
-    <ion-buttons start *ngIf="routesProvider.getCount()">
+    <ion-buttons start *ngIf="getCount() && !isPlaying()">
       <button start ion-button (click)="switchReorder()">
         {{reordering?'Fertig':'Umsortieren'}}
       </button>
@@ -10,7 +10,7 @@
 
     <ion-buttons end *ngIf="canCreate">
       <button ion-button (click)="createRoute()">
-        Erstellen
+        Hinzufügen
       </button>
     </ion-buttons>
 
@@ -19,31 +19,31 @@
 
 <ion-content class="outer-content">
 
-  <ion-refresher (ionRefresh)="doRefresh($event)" [enabled]="!reordering">
-    <ion-refresher-content pullingIcon="arrow-dropdown" pullingText="Ziehe um Liste zurückzusetzen!" refreshingSpinner="circles"
-      refreshingText="Zurücksetzung...">
+  <ion-refresher *ngIf="!getAutoRefresh()" (ionRefresh)="doRefresh($event)" [enabled]="!reordering">
+    <ion-refresher-content pullingIcon="arrow-dropdown" pullingText="Ziehe um Fahrtenhistorie zurückzusetzen!"
+      refreshingSpinner="circles" refreshingText="Zurücksetzung...">
     </ion-refresher-content>
   </ion-refresher>
 
   <route-liste [reorder]="reordering"></route-liste>
 </ion-content>
 
-<ion-footer [class]="!routesProvider.currentRoute?'hide':''">
-  <ion-item *ngIf="routesProvider.currentRoute" class="mainToolbar" no-lines>
-    <div class="text-ellipsis">
-      {{routesProvider.currentRoute.name}}
+<ion-footer [class]="!getRoute()?'hide':''">
+  <ion-item *ngIf="getRoute()" class="mainToolbar" no-lines>
+    <div class="text-ellipsis" (press)="onPress()">
+      {{getRoute().name}}
       <p>
-        {{routesProvider.currentRoute.address.formattedAddress}}
+        {{getRoute().address.formattedAddress}}
       </p>
     </div>
     <div item-end class="playButtons">
-      <button color="dark" (click)="routesProvider.prev()" ion-button large clear no-padding>
+      <button color="dark" (click)="prev()" ion-button large clear no-padding>
         <ion-icon name="rewind"></ion-icon>
       </button>
-      <button color="dark" (click)="routesProvider.start()" ion-button large clear no-padding>
-        <ion-icon [name]="routesProvider.isPlaying?'pause':'play'"></ion-icon>
+      <button color="dark" (click)="play()" ion-button large clear no-padding>
+        <ion-icon [name]="isPlaying()?'pause':'play'"></ion-icon>
       </button>
-      <button color="dark" (click)="routesProvider.next()" ion-button large clear no-padding>
+      <button color="dark" (click)="next()" ion-button large clear no-padding>
         <ion-icon name="fastforward"></ion-icon>
       </button>
     </div>

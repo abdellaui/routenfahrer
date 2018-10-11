@@ -16,7 +16,6 @@ import { InformationPage } from './information/information';
 export class CustomSettingsPage {
   selectedNavApp: string;
   aviableNavApp: NavigationApp[] = [];
-
   constructor(private navCtrl: NavController,
     private launchNavigator: LaunchNavigator,
     private settingsProvider: SettingsProvider,
@@ -62,7 +61,6 @@ export class CustomSettingsPage {
       this.routesProvider.presentToastr('Navigation wurde erfolgreich geändert!');
     });
   }
-
   turnAllActiveRoutesOff(): void {
     this.alertCtrl.create({
       title: 'Achtung',
@@ -112,5 +110,36 @@ export class CustomSettingsPage {
     if (name === 'Bedienungshilfe')
       this.navCtrl.push(BedienungshilfePage)
   }
+
+  getNextAutoRefreshDate(): string {
+    return this.settingsProvider.getNextAutoRefreshDate();
+  }
+
+  get autoRefreshHour(): string {
+    return this.settingsProvider.configs.autoRefreshHour;
+  }
+  set autoRefreshHour(hour: string) {
+    this.settingsProvider.setAutoRefreshHour(hour);
+  }
+
+  get autoRun(): boolean {
+    return this.settingsProvider.configs.autoRun;
+  }
+  set autoRun(val: boolean) {
+    this.settingsProvider.setAutoRun(val);
+  }
+  get autoRefresh(): boolean {
+    return this.settingsProvider.configs.autoRefresh;
+  }
+  set autoRefresh(val: boolean) {
+    this.settingsProvider.setAutoRefresh(val);
+  }
+  get showTaskOnly(): boolean {
+    return this.settingsProvider.configs.showTaskOnly;
+  }
+  set showTaskOnly(val: boolean) {
+    this.settingsProvider.setShowTaskOnly(val);
+  }
+
 
 }

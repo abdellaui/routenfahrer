@@ -1,4 +1,5 @@
 import { ErrorHandler } from '@angular/core';
+import { Badge } from '@ionic-native/badge';
 import { Geolocation } from '@ionic-native/geolocation';
 import { LaunchNavigator } from '@ionic-native/launch-navigator';
 import { NativeGeocoder } from '@ionic-native/native-geocoder';
@@ -28,13 +29,13 @@ export class AppProviders {
         SettingsProvider,
         LocationProvider,
         RoutesProvider,
+        Badge,
         { provide: LaunchNavigator, useClass: LaunchNavigatorMock },
         { provide: NativeGeocoder, useClass: NativeGeocoderMock },
         { provide: ErrorHandler, useClass: IonicErrorHandler },
       ];
 
     } else {
-
       // Use device providers
       providers = [
         StatusBar,
@@ -43,6 +44,7 @@ export class AppProviders {
         SettingsProvider,
         LocationProvider,
         RoutesProvider,
+        Badge,
         { provide: LaunchNavigator, useClass: LaunchNavigator },
         { provide: NativeGeocoder, useClass: NativeGeocoder },
         { provide: ErrorHandler, useClass: IonicErrorHandler },

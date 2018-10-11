@@ -3,6 +3,7 @@ import { Address } from './Address';
 export class Route {
   public id: number;
   public name: string;
+  public erinnerung: string;
   public done: boolean = false;
   public switchedActive: boolean = false;
 

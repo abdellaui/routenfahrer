@@ -17,3 +17,22 @@
     overflow-x: hidden;
     text-overflow: ellipsis;
 }
+
+.toast-message,
+.action-sheet-title,
+.action-sheet-sub-title {
+    white-space: pre-line;
+}
+
+.action-sheet-title {
+    font-weight: bold !important;
+}
+
+.platform-ios {
+    .action-sheet-sub-title {
+        font-size: $action-sheet-ios-title-font-size;
+        padding: $action-sheet-ios-title-padding;
+        color: $action-sheet-ios-title-color;
+        border-bottom: $hairlines-width $action-sheet-ios-button-border-style $action-sheet-ios-button-border-color;
+    }
+}

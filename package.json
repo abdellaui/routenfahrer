@@ -10,10 +10,13 @@
     "clean": "ionic-app-scripts clean",
     "build": "ionic-app-scripts build",
     "lint": "ionic-app-scripts lint",
-    "ios:emu": "ionic cordova emulate ios -lc -- --buildFlag=\"-UseModernBuildSystem=0\" --target=\"iPhone-6s, 12.0\"",
-    "android:emu": "ionic cordova emulate android -lc",
+    "ios:emu": "ionic cordova emulate ios -c -- --buildFlag=\"-UseModernBuildSystem=0\" --target=\"iPhone-6s, 12.0\"",
+    "ios:emu:live": "ionic cordova emulate ios -lc -- --buildFlag=\"-UseModernBuildSystem=0\" --target=\"iPhone-6s, 12.0\"",
     "ios:prepare": "ionic cordova prepare ios",
-    "browser": "ionic cordova run browser -lc"
+    "android:emu": "ionic cordova emulate android -c",
+    "android:emu:live": "ionic cordova emulate android -lc",
+    "browser": "ionic cordova run browser -c",
+    "browser:live": "ionic cordova run browser -lc"
   },
   "dependencies": {
     "@angular/animations": "5.2.11",
@@ -25,6 +28,7 @@
     "@angular/http": "5.2.11",
     "@angular/platform-browser": "5.2.11",
     "@angular/platform-browser-dynamic": "5.2.11",
+    "@ionic-native/badge": "^4.15.0",
     "@ionic-native/core": "^4.15.0",
     "@ionic-native/geolocation": "^4.15.0",
     "@ionic-native/google-maps": "^4.14.0",
@@ -35,7 +39,9 @@
     "@ionic/storage": "2.2.0",
     "browser-sync": "^2.26.0",
     "cheerio": "^0.19.0",
+    "cordova-android": "~7.1.1",
     "cordova-browser": "5.0.4",
+    "cordova-ios": "~4.5.5",
     "cordova-plugin-actionsheet": "2.3.3",
     "cordova-plugin-add-swift-support": "1.7.1",
     "cordova-plugin-device": "^2.0.2",
@@ -59,9 +65,7 @@
     "rxjs": "5.5.11",
     "sw-toolbox": "3.6.0",
     "uk.co.workingedge.phonegap.plugin.launchnavigator": "4.2.2",
-    "zone.js": "0.8.26",
-    "cordova-android": "~7.1.1",
-    "cordova-ios": "~4.5.5"
+    "zone.js": "0.8.26"
   },
   "devDependencies": {
     "@ionic/app-scripts": "3.2.0",
@@ -91,7 +95,9 @@
       "cordova-plugin-nativegeocoder": {
         "LOCATION_WHEN_IN_USE_DESCRIPTION": "Vewendet Geocoder Service um Adressen in Kooardinaten zu transformieren."
       },
-      "cordova-sqlite-storage": {}
+      "cordova-sqlite-storage": {},
+      "cordova-plugin-badge": {},
+      "cordova-plugin-actionsheet": {}
     },
     "platforms": [
       "browser",

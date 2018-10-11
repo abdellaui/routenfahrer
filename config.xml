@@ -3,7 +3,7 @@
     <name>Routenplaner</name>
     <description>Ihr täglicher Helfer.</description>
     <author email="abdullah@sahin.uk" href="https://sahin.uk/">Abdullah Sahin</author>
-    <content original-src="index.html" src="http://192.168.10.5:8100" />
+    <content src="index.html" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
@@ -100,7 +100,9 @@
     <plugin name="cordova-plugin-nativegeocoder" spec="3.1.2">
         <variable name="LOCATION_WHEN_IN_USE_DESCRIPTION" value="Vewendet Geocoder Service um Adressen in Kooardinaten zu transformieren." />
     </plugin>
-    <allow-navigation href="http://192.168.10.5:8100" sessionid="6a511828" />
+    <allow-navigation href="http://192.168.10.5:8100" sessionid="d20508c8" />
+    <plugin name="cordova-plugin-badge" spec="~0.8.7" />
+    <plugin name="cordova-plugin-actionsheet" spec="2.3.3" />
     <engine name="browser" spec="5.0.4" />
     <engine name="android" spec="~7.1.1" />
     <engine name="ios" spec="~4.5.5" />

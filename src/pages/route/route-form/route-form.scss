@@ -1,5 +1,17 @@
 page-route-form {
     .mapShow {
-        height: 199px;
+        height: 225px;
+        width: 100%;
+        ion-list {
+            position: absolute;
+            width: inherit;
+            overflow-y: scroll;
+            max-height: 150%;
+            z-index: 999;
+            ion-item:hover {
+                cursor: pointer;
+                background: #f1f1f1
+            }
+        }
     }
 }

@@ -20,36 +20,85 @@ export class RouteListeComponent {
     private navCtrl: NavController) {
   }
 
-  edit(item: Route) {
-    this.listView.closeSlidingItems();
+  closeSlidingItems(): void {
+    if (this.listView)
+      this.listView.closeSlidingItems();
+  }
+
+  edit(item: Route): void {
+    this.closeSlidingItems();
     this.navCtrl.push(RouteFormPage, { route: item });
   }
 
+  onPress(item: Route): void {
+    if (this.canReorder) return;
 
-  changeStatus(item: Route) {
+    this.routesProvider.showErinnnerung(item);
+
+  }
+  changeStatus(item: Route): void {
     item.switchIsTask();
-    this.routesProvider.changeRoute(item, item.isTask() ? 'Route wurde aktiviert!' : 'Route wurde deaktiviert!');
-    this.listView.closeSlidingItems();
+    this.routesProvider.changeRoute(item);
+    this.closeSlidingItems();
   }
 
-  delete(item: Route) {
-    this.listView.closeSlidingItems();
+  delete(item: Route): void {
     this.routesProvider.removeRoute(item);
+    this.closeSlidingItems();
   }
 
-  play(index: number) {
+  play(index: number): void {
     this.routesProvider.wantToPlay(index);
-    this.listView.closeSlidingItems();
+    this.closeSlidingItems();
   }
 
+  reorder(event: any): void {
+    this.routesProvider.reorderRoutes(event);
+  }
 
-
+  isPlaying(): boolean {
+    return this.routesProvider.isPlaying;
+  }
   showEmptyInfo(): boolean {
     if (!this.canReorder && this.settingsProvider.configs.showTaskOnly) {
       return Boolean(this.routesProvider._activeRoutesCount);
     } else {
-      return Boolean(this.routesProvider.routes.length);
+      return Boolean(this.getLength());
     }
+  }
+
+  dontSlide(): boolean {
+    return (this.settingsProvider.configs.showTaskOnly && !this.canReorder)
+  }
+
+
+
+
+  getRoutes(): Route[] {
+    return this.routesProvider.routes;
+  }
+
+  getLength(): number {
+    return this.getRoutes().length;
+  }
+
+  getIndex(): number {
+    return this.routesProvider.currentIndex
+  }
+
+  getInactiveText(): string {
+    const count = this.getInactiveCount();
+
+    if (count === 0)
+      return 'Füge einen Ziel zu!';
+    else if (count === 1)
+      return `${count} inaktives Ziel vorhanden.`;
+    else
+      return `${count} inaktive Ziele vorhanden.`;
+
+  }
+  getInactiveCount(): number {
+    return this.routesProvider.getInactiveCount();
   }
 }
 

@@ -55,10 +55,10 @@ export class RouteFormPage {
   }
 
   readonly addressInfos: any = {
-    thoroughfare: 'Straße *',
+    thoroughfare: '* Straße',
     subThoroughfare: 'Hausnummer',
     postalCode: 'PLZ',
-    locality: 'Stadt *',
+    locality: '* Stadt',
     countryName: 'Land'
   };
 
@@ -71,7 +71,6 @@ export class RouteFormPage {
     private alertCtrl: AlertController,
     private nativeGeocoder: NativeGeocoder,
     private zone: NgZone) {
-    this.locationProvider.startTracking('route-form');
     const paramRoute = this.navParams.get('route');
     if (paramRoute instanceof Route) {
       this.currentRoute = paramRoute;
@@ -82,6 +81,7 @@ export class RouteFormPage {
     }
     this.searchInputValue = this.currentRoute.address.formattedAddress;
 
+    this.locationProvider.startTracking('route-form');
   }
   ionViewWillEnter() {
     this.tabbarDiv = document.querySelector('.tabbar').classList;
@@ -131,7 +131,6 @@ export class RouteFormPage {
 
     this.mapMap.addMarker({
       animation: 'DROP',
-      flat: true,
       icon: 'red',
       position: this.currentCoords
     }).then((marker: Marker) => {
@@ -278,11 +277,13 @@ export class RouteFormPage {
 
     if (this.validateInput()) {
 
-      this.checkSearchString();
+      this.currentRoute.address.generateFormatedAdress();
+      this.searchInputValue = this.currentRoute.address.formattedAddress;
+      console.log('asdsa');
       this.geocodeAddress()
         .then((result: Address[]) => {
           this.zone.run(() => {
-            this.currentRoute.address = result[0];
+            this.currentRoute.address.coords = result[0].coords;
             if (this.editing) {
               this.routesProvider.changeRoute(this.currentRoute);
             } else {

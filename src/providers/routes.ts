@@ -1,4 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
+import { Badge } from '@ionic-native/badge';
 import { LaunchNavigator } from '@ionic-native/launch-navigator';
 import { Storage } from '@ionic/storage';
 import { ActionSheet, ActionSheetController, AlertController, ToastController } from 'ionic-angular';
@@ -19,7 +20,7 @@ export class RoutesProvider {
   routes: Route[] = [];
   _activeRoutesCount: number = 0;
   _canRideRoutesCount: number = 0;
-
+  isActionSheetOpen: boolean = true;
   constructor(
     private storage: Storage,
     private toastCtrl: ToastController,
@@ -27,7 +28,9 @@ export class RoutesProvider {
     private alertCtrl: AlertController,
     private settingsProvider: SettingsProvider,
     private actionSheetCtrl: ActionSheetController,
-    private zone: NgZone) {
+    private toastrCtrl: ToastController,
+    private zone: NgZone,
+    private badge: Badge) {
 
     this.storage.ready().then(() => {
 
@@ -42,6 +45,8 @@ export class RoutesProvider {
         this.setRoutes(instances);
         this.setCurrentIndex(this.settingsProvider.configs.currentIndex);
         this.setIsPlaying(this.settingsProvider.configs.isPlaying);
+        this.setIsActionSheetOpen(this.settingsProvider.configs.isActionSheetOpen);
+        this.autoRefreshProcedure();
       }).catch((e: Error) => {
         console.log(JSON.stringify(e));
       });
@@ -55,6 +60,11 @@ export class RoutesProvider {
   private setIsPlaying(playing: boolean): void {
     this.isPlaying = playing;
     this.settingsProvider.configs.isPlaying = this.isPlaying;
+    this.settingsProvider.storeConfigs();
+  }
+  private setIsActionSheetOpen(action: boolean): void {
+    this.isActionSheetOpen = action;
+    this.settingsProvider.configs.isActionSheetOpen = this.isActionSheetOpen;
     this.settingsProvider.storeConfigs();
   }
   private setCurrentIndex(index: number): void {
@@ -73,6 +83,7 @@ export class RoutesProvider {
     const rides = tasks.filter((item: Route) => { return item.canRide() });
     this._activeRoutesCount = tasks.length;
     this._canRideRoutesCount = rides.length;
+    this.badge.set(this._canRideRoutesCount);
   }
 
   private storeRoutes(): void {
@@ -124,10 +135,10 @@ export class RoutesProvider {
     this.storeRoutes();
   }
 
-  changeRoute(route: Route, message?: string): void {
+  changeRoute(route: Route): void {
     let searchingIndex = -1;
     this.routes.forEach((item: Route, index: number) => {
-      if (item.id == route.id) {
+      if (item.id === route.id) {
         return (searchingIndex = index);
       }
     });
@@ -135,30 +146,29 @@ export class RoutesProvider {
     this.routes[searchingIndex] = route;
 
     this.storeRoutes();
-    // this.presentToastr((message) ? message : 'Route wurde bearbeitet!');
   }
 
   removeRoute(route: Route): void {
-
-    this.alertCtrl.create({
-      title: 'Bestätige Löschung',
-      message: 'Bestätigen Sie die Löschung des Zieles!',
-      buttons: [
-        {
-          text: 'Abbrechen',
-          role: 'cancel',
-          handler: () => { }
-        },
-        {
-          text: 'Bestätigen',
-          handler: () => {
-            this.routes.splice(this.routes.indexOf(route), 1);
-            this.storeRoutes();
+    this.checkChangableRoute().then(() => {
+      this.alertCtrl.create({
+        title: 'Bestätige Löschung',
+        message: 'Bestätigen Sie die Löschung des Zieles!',
+        buttons: [
+          {
+            text: 'Abbrechen',
+            role: 'cancel',
+            handler: () => { }
+          },
+          {
+            text: 'Bestätigen',
+            handler: () => {
+              this.routes.splice(this.routes.indexOf(route), 1);
+              this.storeRoutes();
+            }
           }
-        }
-      ]
-    }).present();
-
+        ]
+      }).present();
+    });
 
   }
 
@@ -170,9 +180,11 @@ export class RoutesProvider {
   }
 
   reset(): void {
+    this.setIsActionSheetOpen(false);
     this.stop();
     this.routes.forEach((route: Route) => { route.done = false; });
     this.setCurrentIndex(this.findNextTask(-1, true));
+    this.storeRoutes();
   }
 
   routeIsDone(): void {
@@ -181,7 +193,8 @@ export class RoutesProvider {
   }
   askCurrentRouteSolved(): ActionSheet {
     return this.actionSheetCtrl.create({
-      title: this.currentRoute.name,
+      title: `${this.currentRoute.name}\n${this.currentRoute.address.formattedAddress}`,
+      subTitle: this.currentRoute.erinnerung,
       enableBackdropDismiss: false,
       buttons: [
         {
@@ -198,6 +211,7 @@ export class RoutesProvider {
           }
         },
         {
+          icon: 'close',
           text: 'Route abbrechen',
           role: 'destructive',
           handler: () => {
@@ -222,10 +236,13 @@ export class RoutesProvider {
 
   checkChangableRoute(): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      if (this.isPlaying) {
-        this.askCurrentRouteSolved().present();
-        this.askCurrentRouteSolved().onDidDismiss(() => {
+      if (this.isPlaying && !this.isActionSheetOpen) {
+        const actionSheet = this.askCurrentRouteSolved();
+        actionSheet.present();
+        this.setIsActionSheetOpen(true);
+        actionSheet.onDidDismiss(() => {
           resolve(true);
+          this.setIsActionSheetOpen(false);
         });
       } else {
         resolve(false);
@@ -272,28 +289,29 @@ export class RoutesProvider {
 
   startNaviOnCurrentRoute(): void {
     if (!this.currentRoute) return;
+    this.launchNavigator.navigate(this.currentRoute.address.formattedAddress);
     this.setIsPlaying(true);
-    this.launchNavigator.navigate(this.currentRoute.address.formattedAddress)
-      .then(
-        success => console.log('Launched navigator'),
-        error => console.log('Error launching navigator', error)
-      );
   }
 
   deleteAllRoutes(): void {
-    this.setRoutes([]);
-    this.storeRoutes();
+    this.checkChangableRoute().then(() => {
+      this.setRoutes([]);
+      this.reset();
+      this.storeRoutes();
 
-    this.presentToastr('Alle Ziele wurden gelöscht!');
+      this.presentToastr('Alle Ziele wurden gelöscht!');
+    });
   }
 
   turnAllActiveRoutesOff(): void {
-    this.routes.forEach((route: Route) => {
-      route.switchedActive = false;
-    });
-    this.storeRoutes();
+    this.checkChangableRoute().then(() => {
+      this.routes.forEach((route: Route) => {
+        route.switchedActive = false;
+      });
+      this.storeRoutes();
 
-    this.presentToastr('Alle Ziele wurden zurückgesetzt!');
+      this.presentToastr('Alle Ziele wurden zurückgesetzt!');
+    });
   }
 
   presentToastr(_message: string): void {
@@ -306,5 +324,30 @@ export class RoutesProvider {
 
   }
 
+  autoRefreshProcedure(): void {
 
+    if (this.settingsProvider.doAutoRefresh()) {
+      this.reset();
+      this.settingsProvider.setAutoRefreshLastDate(new Date().toString());
+    }
+  }
+
+
+  getInactiveCount(): number {
+    return this.getCount() - this._activeRoutesCount;
+  }
+
+  getToDriveCount(): number {
+    return this._canRideRoutesCount;
+  }
+
+  showErinnnerung(item: Route): void {
+    this.toastrCtrl.create({
+      message: `${item.name}\n${item.address.formattedAddress}\nErinnerung:\n${item.erinnerung ? item.erinnerung : 'keine.'}`,
+      position: 'bottom',
+      showCloseButton: true,
+      closeButtonText: 'Ok',
+      dismissOnPageChange: true
+    }).present();
+  }
 }

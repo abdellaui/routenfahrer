@@ -1,4 +1,18 @@
 route-liste {
+    div {
+        &.notFoundIcon {
+            height: 100%;
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            color: #cccccc;
+            ion-icon {
+                font-size: 100px;
+                display: block;
+                text-align: center;
+            }
+        }
+    }
     ion-item-sliding {
         &.hide {
             display: none

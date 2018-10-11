@@ -27,9 +27,12 @@ export class LocationProvider {
         });
       }).catch(e => {
         console.log(JSON.stringify(e));
+
         this.zone.run(() => {
           this.coordsChange.next(this.coords);
         });
+
+        if (Object.keys(e).length === 0) return;
 
         this.alertCtrl.create({
           title: 'Achtung!',
@@ -42,6 +45,7 @@ export class LocationProvider {
   }
 
   startTracking(channel: string): void {
+    this.coordsChange.next(this.coords);
     if (this.instances.indexOf(channel) !== -1) return;
 
     this.instances.push(channel);

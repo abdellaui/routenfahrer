@@ -1,20 +1,22 @@
-<ion-card *ngIf="!showEmptyInfo()">
-  <ion-card-content>
-    Aktuell keine Ziele verfügbar!
-  </ion-card-content>
-</ion-card>
-<ion-list #listOfRoutes *ngIf="routesProvider.routes.length" [reorder]="canReorder" (ionItemReorder)="this.routesProvider.reorderRoutes($event)">
+<div *ngIf="!showEmptyInfo()" class="notFoundIcon" text-center>
+  <div>
+
+    <ion-icon name="alert" isActive="false" margin-bottom></ion-icon>
+    <p>
+      {{getInactiveText()}}
+    </p>
+  </div>
+
+</div>
+<ion-list #listOfRoutes *ngIf="getLength()" [reorder]="canReorder" (ionItemReorder)="reorder($event)">
 
 
-  <ion-item-sliding *ngFor="let item of routesProvider.routes; let itemIndex = index" [class]="(settingsProvider.configs.showTaskOnly && !item.isTask() && !canReorder)
-?'hide'
-:''
-">
-    <ion-item text-wrap>
+  <ion-item-sliding *ngFor="let item of getRoutes(); let itemIndex = index" [class]="dontSlide() && item.isTask()?'hide':''">
+    <ion-item (press)="onPress(item)" text-wrap>
       <ion-icon item-start *ngIf="item.isTask()" [name]="
       (item.done)
       ?'checkmark'
-      :(routesProvider.currentIndex == itemIndex)
+      :(getIndex() == itemIndex)
       ?'car'
       :'pin'">
       </ion-icon>
@@ -33,7 +35,7 @@
       </button>
     </ion-item-options>
 
-    <ion-item-options side="right" *ngIf="!canReorder">
+    <ion-item-options side="right" *ngIf="!canReorder && !isPlaying()">
       <button icon-start ion-button color="danger" (click)="delete(item)">
         <ion-icon name="trash"></ion-icon>
         Löschen

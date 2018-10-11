@@ -14,14 +14,26 @@ export class Address {
   }
   generateFormatedAdress() {
 
-    this.formattedAddress = [
-      this.thoroughfare,
-      this.subThoroughfare,
-      this.postalCode,
-      this.locality,
-      this.countryName
-    ].filter(x => x).join(', ');
+    let address = this.thoroughfare;
+    if (this.subThoroughfare)
+      address += ` ${this.subThoroughfare}`;
 
+    if (address)
+      address += `,\n`;
+
+    if (this.postalCode)
+      address += ` ${this.postalCode}`;
+
+    if (this.locality)
+      address += ` ${this.locality}`;
+    if (address) {
+      address += ', \n';
+    }
+    if (this.countryName)
+      address += this.countryName;
+
+
+    this.formattedAddress = address;
   }
   validateInput(): boolean {
     return Boolean(this.thoroughfare && this.locality);

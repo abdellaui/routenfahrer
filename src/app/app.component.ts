@@ -32,7 +32,11 @@ export class MyApp {
         'API_KEY_FOR_BROWSER_DEBUG': 'AIzaSyAKK991AzhbVbZWSrv-52YGlsMaEzlHqpA'
       });
 
-      Environment.setBackgroundColor("#efeff4");
+      if (this.platform.is('ios')) {
+        Environment.setBackgroundColor("#efeff4");
+      } else {
+        Environment.setBackgroundColor("#ffffff");
+      }
       this.routesProvider.checkChangableRoute();
     });
 
@@ -44,4 +48,3 @@ export class MyApp {
 
   }
 }
-

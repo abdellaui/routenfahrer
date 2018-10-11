@@ -1,42 +1,48 @@
 <ion-header>
 
   <ion-navbar>
-    <ion-title>Ziel {{(editing)?'bearbeiten':'erstellen'}}</ion-title>
+    <ion-title>Ziel {{(editing)?'bearbeiten':'hinzufügen'}}</ion-title>
   </ion-navbar>
 
 </ion-header>
 
 
 <ion-content class="outer-content">
-
-  <ion-list>
-    <ion-searchbar placeholder="Adresssuche beginnen" [(ngModel)]="searchInputValue" (ionInput)="onInputSearch()"
-      (ionCancel)="onCancel($event)">
+  <div class="mapShow" id="sMap" #sMap>
+    <ion-searchbar placeholder="Adresssuche" [(ngModel)]="searchInputValue" (ionInput)="onInputSearch()" (ionCancel)="onCancel($event)">
     </ion-searchbar>
+    <ion-list>
 
-    <ion-item *ngFor="let address of possibleAddresses" (click)="addressSelected(address)">
-      {{address.formattedAddress}}
-    </ion-item>
+      <ion-item *ngFor="let address of possibleAddresses" (click)="addressSelected(address)">
+        {{address.formattedAddress}}
+      </ion-item>
 
-    <div class="mapShow" id="sMap" #sMap></div>
 
-  </ion-list>
-  <ion-list>
+    </ion-list>
+  </div>
+  <ion-list margin-top>
     <ion-list-header>
       Konfiguration
     </ion-list-header>
     <ion-item>
-      <ion-label color="primary" fixed>Name *</ion-label>
-      <ion-input placeholder="Name eingeben *" [(ngModel)]="currentRoute.name" clearInput></ion-input>
+      <ion-label color="primary" stacked>* Name</ion-label>
+      <ion-input maxLength="100" placeholder="* Name eingeben" [(ngModel)]="currentRoute.name" clearInput></ion-input>
     </ion-item>
     <ion-item *ngFor="let info of getInfoKeys()">
-      <ion-label color="primary" fixed>{{ addressInfos[info] }}</ion-label>
-      <ion-input placeholder="{{ addressInfos[info] }} eingeben" (focusout)="onPropsFocusOut($event)" [(ngModel)]="currentRoute.address[info]"
-        clearInput></ion-input>
+      <ion-label color="primary" stacked>{{ addressInfos[info] }}</ion-label>
+      <ion-input maxLength="100" placeholder="{{ addressInfos[info] }} eingeben" (focusout)="onPropsFocusOut($event)"
+        [(ngModel)]="currentRoute.address[info]" clearInput></ion-input>
     </ion-item>
+
     <ion-item>
-      <ion-icon name="information-circle" item-start></ion-icon>
-      Mit * markierte Felder sind Pflichtpfelder!
+      <ion-label color="primary" stacked>Erinnerung</ion-label>
+      <ion-textarea autosize maxLength="500" [(ngModel)]="currentRoute.erinnerung" placeholder="Erinnerung eingeben"></ion-textarea>
+    </ion-item>
+
+    <ion-item>
+      <p>
+        Mit * markierte Felder sind Pflichtfelder!
+      </p>
     </ion-item>
   </ion-list>
 
@@ -48,8 +54,7 @@
       <ion-label>{{ dayFullname[day] }}</ion-label>
       <ion-toggle color="secondary" [(ngModel)]="currentRoute.activeDays[day]"></ion-toggle>
     </ion-item>
-    <ion-item-divider color="light"></ion-item-divider>
-    <button ion-item (click)="storeInput()" [disabled]="!validateInput()" color="secondary" outline detail-none
-      text-center>Speichern</button>
+    <button margin-top ion-item (click)="storeInput()" [disabled]="!validateInput()" color="secondary" outline
+      detail-none text-center>Speichern</button>
   </ion-list>
 </ion-content>
