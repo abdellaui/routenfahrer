@@ -1,8 +1,11 @@
 import { ErrorHandler } from '@angular/core';
 import { Badge } from '@ionic-native/badge';
+import { File } from '@ionic-native/file';
 import { Geolocation } from '@ionic-native/geolocation';
+import { HTTP } from '@ionic-native/http';
 import { LaunchNavigator } from '@ionic-native/launch-navigator';
 import { NativeGeocoder } from '@ionic-native/native-geocoder';
+import { SocialSharing } from '@ionic-native/social-sharing';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
 import { IonicErrorHandler } from 'ionic-angular';
@@ -29,7 +32,10 @@ export class AppProviders {
         SettingsProvider,
         LocationProvider,
         RoutesProvider,
+        SocialSharing,
         Badge,
+        HTTP,
+        File,
         { provide: LaunchNavigator, useClass: LaunchNavigatorMock },
         { provide: NativeGeocoder, useClass: NativeGeocoderMock },
         { provide: ErrorHandler, useClass: IonicErrorHandler },
@@ -44,7 +50,10 @@ export class AppProviders {
         SettingsProvider,
         LocationProvider,
         RoutesProvider,
+        SocialSharing,
         Badge,
+        HTTP,
+        File,
         { provide: LaunchNavigator, useClass: LaunchNavigator },
         { provide: NativeGeocoder, useClass: NativeGeocoder },
         { provide: ErrorHandler, useClass: IonicErrorHandler },

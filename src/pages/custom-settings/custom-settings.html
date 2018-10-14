@@ -15,7 +15,7 @@
       <ion-avatar item-start>
         <img src="/assets/imgs/logo.png">
       </ion-avatar>
-      <h2>Routenplaner</h2>
+      <h2>Routenfahrer</h2>
       <p>v.1.0.0</p>
     </ion-item>
     <button ion-item (click)="openPage('Bedienungshilfe')">
@@ -38,6 +38,12 @@
       </ion-label>
       <ion-toggle color="secondary" [(ngModel)]="showTaskOnly"></ion-toggle>
     </ion-item>
+    <button ion-item (click)="importCsv()" detail-none>
+      Route importieren
+    </button>
+    <button ion-item (click)="exportCsv()" detail-none>
+      Route als CSV exportieren
+    </button>
     <button ion-item (click)="turnAllActiveRoutesOff()" detail-none>
       Status von Zielen zurücksetzen
     </button>
@@ -64,7 +70,7 @@
     </ion-item>
     <ion-item *ngIf="autoRefresh" text-wrap detail-push>
       <ion-label>
-        <p>Zurücksetzung bei Neustart am</p>
+        <p>Zurücksetzung bei Neustart ab</p>
         <p>{{getNextAutoRefreshDate()}} Uhr</p>
       </ion-label>
       <ion-datetime cancelText="Abbrechen" doneText="Ok" displayFormat="HH:mm" [(ngModel)]="autoRefreshHour"></ion-datetime>

@@ -60,7 +60,7 @@ export class RouteListeComponent {
     return this.routesProvider.isPlaying;
   }
   showEmptyInfo(): boolean {
-    if (!this.canReorder && this.settingsProvider.configs.showTaskOnly) {
+    if (this.dontSlide()) {
       return Boolean(this.routesProvider._activeRoutesCount);
     } else {
       return Boolean(this.getLength());
@@ -68,7 +68,7 @@ export class RouteListeComponent {
   }
 
   dontSlide(): boolean {
-    return (this.settingsProvider.configs.showTaskOnly && !this.canReorder)
+    return (!this.canReorder && this.settingsProvider.configs.showTaskOnly);
   }
 
 

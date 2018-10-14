@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="uk.sahin.routeplaner" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Routenplaner</name>
+<widget id="uk.sahin.routenfahrer" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Routenfahrer</name>
     <description>Ihr täglicher Helfer.</description>
     <author email="abdullah@sahin.uk" href="https://sahin.uk/">Abdullah Sahin</author>
     <content src="index.html" />
@@ -100,9 +100,11 @@
     <plugin name="cordova-plugin-nativegeocoder" spec="3.1.2">
         <variable name="LOCATION_WHEN_IN_USE_DESCRIPTION" value="Vewendet Geocoder Service um Adressen in Kooardinaten zu transformieren." />
     </plugin>
+    <allow-navigation href="http://*/*" />
     <allow-navigation href="http://192.168.10.5:8100" sessionid="d20508c8" />
     <plugin name="cordova-plugin-badge" spec="~0.8.7" />
     <plugin name="cordova-plugin-actionsheet" spec="2.3.3" />
+    <plugin name="cordova-plugin-ios-disableshaketoedit" spec="~1.0.0" />
     <engine name="browser" spec="5.0.4" />
     <engine name="android" spec="~7.1.1" />
     <engine name="ios" spec="~4.5.5" />

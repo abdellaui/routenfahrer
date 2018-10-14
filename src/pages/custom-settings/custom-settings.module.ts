@@ -11,8 +11,8 @@ import { InformationPageModule } from './information/information.module';
   ],
   imports: [
     IonicPageModule.forChild(CustomSettingsPage),
-    BedienungshilfePageModule,
     InformationPageModule,
+    BedienungshilfePageModule,
   ],
   exports: [
     CustomSettingsPage,

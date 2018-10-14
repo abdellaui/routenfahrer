@@ -1,6 +1,9 @@
+import { ILatLng } from '@ionic-native/google-maps';
+
 import { Address } from './Address';
 
 export class Route {
+  static countInstance = 0;
   public id: number;
   public name: string;
   public erinnerung: string;
@@ -23,7 +26,8 @@ export class Route {
 
   constructor(parent?: Address) {
     this.address = (parent) ? parent : new Address();
-    this.id = this.createDate();
+    this.id = this.createDate() + Route.countInstance;
+    Route.countInstance++;
   };
 
   createDate(): number {
@@ -52,4 +56,58 @@ export class Route {
     this.switchedActive = !this.switchedActive;
   }
 
+
+  toJsonForCsv(): any {
+    return {
+      _Name: this.name,
+      Erinnerung: this.erinnerung,
+      _Strasse: this.address.thoroughfare,
+      Hausnummer: this.address.subThoroughfare,
+      PLZ: this.address.postalCode,
+      _Stadt: this.address.locality,
+      Land: this.address.countryName,
+      _Kooardinaten_Lat: this.address.coords.lat,
+      _Kooardinaten_Lng: this.address.coords.lng,
+      StatusSchalter: this.switchedActive,
+      ...this.activeDays
+    }
+  }
+  static fromJsonToInstance(json: any): Route | undefined {
+    try {
+      console.log(JSON.stringify(json));
+      const route = new Route();
+      route.name = json._Name;
+      route.erinnerung = json.Erinnerung;
+      route.switchedActive = json.StatusSchalter === 'true';
+      route.activeDays.Mo = json.Mo === 'true';
+      route.activeDays.Di = json.Di === 'true';
+      route.activeDays.Mi = json.Mi === 'true';
+      route.activeDays.Do = json.Do === 'true';
+      route.activeDays.Fr = json.Fr === 'true';
+      route.activeDays.Sa = json.Sa === 'true';
+      route.activeDays.So = json.So === 'true';
+
+      const address = new Address();
+      address.thoroughfare = json._Strasse;
+      address.subThoroughfare = json.Hausnummer;
+      address.postalCode = json.PLZ;
+      address.locality = json._Stadt;
+      address.countryName = json.Land;
+      address.coords = <ILatLng>{
+        lat: Number(json._Kooardinaten_Lat),
+        lng: Number(json._Kooardinaten_Lng),
+      };
+      address.generateFormatedAdress();
+      route.address = address;
+      if (route.name && address.validateInput()) {
+
+        return route;
+      } else {
+        throw Error('wrong format');
+      }
+    } catch (e) {
+      console.log('ROUTESERROR:' + e);
+      return undefined;
+    }
+  }
 }

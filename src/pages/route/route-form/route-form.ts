@@ -86,7 +86,7 @@ export class RouteFormPage {
   ionViewWillEnter() {
     this.tabbarDiv = document.querySelector('.tabbar').classList;
     this.loading = this.loadingCtrl.create({
-      content: 'Einen Moment bitte!'
+      content: 'Einen Moment bitte...'
     });
     this.loading.present();
 
@@ -279,7 +279,6 @@ export class RouteFormPage {
 
       this.currentRoute.address.generateFormatedAdress();
       this.searchInputValue = this.currentRoute.address.formattedAddress;
-      console.log('asdsa');
       this.geocodeAddress()
         .then((result: Address[]) => {
           this.zone.run(() => {
@@ -298,7 +297,7 @@ export class RouteFormPage {
           this.zone.run(() => {
             this.alertCtrl.create({
               title: 'Hinweis',
-              subTitle: 'Adresse konnte nicht gefunden werden! Geben Sie gültige Adressen ein!',
+              subTitle: 'Adresse konnte nicht gefunden werden! Es wird eine aktive Internetverbindung benötigt',
               buttons: ['Ok']
             }).present();
           });

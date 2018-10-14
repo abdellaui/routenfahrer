@@ -1,4 +1,4 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Badge } from '@ionic-native/badge';
 import { LaunchNavigator } from '@ionic-native/launch-navigator';
 import { Storage } from '@ionic/storage';
@@ -20,7 +20,7 @@ export class RoutesProvider {
   routes: Route[] = [];
   _activeRoutesCount: number = 0;
   _canRideRoutesCount: number = 0;
-  isActionSheetOpen: boolean = true;
+  isActionSheetOpen: boolean = false;
   constructor(
     private storage: Storage,
     private toastCtrl: ToastController,
@@ -29,7 +29,6 @@ export class RoutesProvider {
     private settingsProvider: SettingsProvider,
     private actionSheetCtrl: ActionSheetController,
     private toastrCtrl: ToastController,
-    private zone: NgZone,
     private badge: Badge) {
 
     this.storage.ready().then(() => {
@@ -53,7 +52,7 @@ export class RoutesProvider {
     });
   }
 
-  private setRoutes(routes: Route[]): void {
+  setRoutes(routes: Route[]): void {
     this.routes = routes;
     this.refreshStatRoutesCount();
   }
@@ -150,6 +149,7 @@ export class RoutesProvider {
 
   removeRoute(route: Route): void {
     this.checkChangableRoute().then(() => {
+
       this.alertCtrl.create({
         title: 'Bestätige Löschung',
         message: 'Bestätigen Sie die Löschung des Zieles!',
@@ -172,6 +172,12 @@ export class RoutesProvider {
 
   }
 
+  addRoutes(routes: Route[]) {
+    routes.forEach(route => {
+      this.routes.push(route);
+    });
+    this.storeRoutes();
+  }
   addRoute(route: Route): void {
     this.routes.push(route);
     this.dummy = new Route();
@@ -196,33 +202,31 @@ export class RoutesProvider {
       title: `${this.currentRoute.name}\n${this.currentRoute.address.formattedAddress}`,
       subTitle: this.currentRoute.erinnerung,
       enableBackdropDismiss: false,
-      buttons: [
+      buttons: [ // TODO: barcode scanner for retoures etc
         {
           icon: 'checkmark',
-          text: 'Am Ziel angekommen!',
-
+          text: 'Erledigt',
           handler: () => {
-            this.zone.run(() => {
-              this.routeIsDone();
-              this.stop();
-              this.next();
-              this.autoStart();
-            });
+
+            this.routeIsDone();
+            this.stop();
+            this.next();
+            this.autoStart();
+
           }
         },
         {
           icon: 'close',
-          text: 'Route abbrechen',
+          text: 'Ziel abbrechen',
           role: 'destructive',
           handler: () => {
-            this.zone.run(() => {
-              this.stop();
-            });
+
+            this.stop();
 
           }
         },
         {
-          text: 'Route wird noch gefahren',
+          text: 'Ziel wird noch gefahren',
           role: 'cancel',
           handler: () => {
           }
@@ -241,8 +245,12 @@ export class RoutesProvider {
         actionSheet.present();
         this.setIsActionSheetOpen(true);
         actionSheet.onDidDismiss(() => {
-          resolve(true);
           this.setIsActionSheetOpen(false);
+          if (!this.isPlaying) {
+            resolve(true);
+          } else {
+            reject();
+          }
         });
       } else {
         resolve(false);
@@ -263,10 +271,17 @@ export class RoutesProvider {
   }
 
   wantToPlay(index: number) {
-    this.checkChangableRoute().then(() => {
 
-      const route = this.routes[index];
-      if (route) {
+    const route = this.routes[index];
+    if (!route) {
+      return;
+    }
+
+    if (route === this.currentRoute) {
+      this.start();
+    } else {
+      this.checkChangableRoute().then(() => {
+
 
         route.switchedActive = !route.isTodayTask();
         route.done = false;
@@ -274,8 +289,9 @@ export class RoutesProvider {
         this.setCurrentIndex(index);
         this.autoStart();
 
-      }
-    });
+
+      });
+    }
   }
   autoStart(): void {
     if (this.settingsProvider.configs.autoRun)
@@ -295,6 +311,7 @@ export class RoutesProvider {
 
   deleteAllRoutes(): void {
     this.checkChangableRoute().then(() => {
+
       this.setRoutes([]);
       this.reset();
       this.storeRoutes();
@@ -305,6 +322,7 @@ export class RoutesProvider {
 
   turnAllActiveRoutesOff(): void {
     this.checkChangableRoute().then(() => {
+
       this.routes.forEach((route: Route) => {
         route.switchedActive = false;
       });

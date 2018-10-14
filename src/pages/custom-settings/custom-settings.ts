@@ -1,8 +1,13 @@
 import { Component } from '@angular/core';
+import { File, IWriteOptions } from '@ionic-native/file';
+import { HTTP } from '@ionic-native/http';
 import { LaunchNavigator } from '@ionic-native/launch-navigator';
-import { AlertController, NavController } from 'ionic-angular';
+import { SocialSharing } from '@ionic-native/social-sharing';
+import { AlertController, LoadingController, NavController } from 'ionic-angular';
+import { parse, unparse } from 'papaparse';
 
 import { NavigationApp } from '../../models/NavigationApp';
+import { Route } from '../../models/Route';
 import { RoutesProvider } from '../../providers/routes';
 import { SettingsProvider } from '../../providers/settings';
 import { BedienungshilfePage } from './bedienungshilfe/bedienungshilfe';
@@ -20,8 +25,13 @@ export class CustomSettingsPage {
     private launchNavigator: LaunchNavigator,
     private settingsProvider: SettingsProvider,
     private routesProvider: RoutesProvider,
+    private socialSharing: SocialSharing,
+    private loadingCtrl: LoadingController,
+    private file: File,
+    private http: HTTP,
     private alertCtrl: AlertController) {
 
+    console.log('UFFF');
 
     this.launchNavigator.availableApps().then((result: string[]) => {
       this.aviableNavApp = [];
@@ -70,7 +80,6 @@ export class CustomSettingsPage {
           text: 'Abbrechen',
           role: 'cancel',
           handler: () => {
-            console.log('Cancel clicked');
           }
         },
         {
@@ -91,7 +100,6 @@ export class CustomSettingsPage {
           text: 'Abbrechen',
           role: 'cancel',
           handler: () => {
-            console.log('Cancel clicked');
           }
         },
         {
@@ -113,6 +121,168 @@ export class CustomSettingsPage {
 
   getNextAutoRefreshDate(): string {
     return this.settingsProvider.getNextAutoRefreshDate();
+  }
+
+  importCsv(): void {
+    this.alertCtrl.create({
+      title: 'Route importieren',
+      subTitle: 'Gebe die URL zum .csv Datei.',
+      inputs: [
+        {
+          name: 'url',
+          placeholder: 'URL eingeben'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Abbrechen',
+          role: 'cancel',
+          handler: () => {
+          }
+        },
+        {
+          text: 'Importieren',
+          handler: data => {
+            if (data.url.length !== 0) {
+              this.importFromUrl(data.url);
+              return true;
+            } else {
+              return false;
+            }
+          }
+        }
+      ]
+    }).present();
+
+  }
+  importFromUrl(url: string): void {
+
+    const loading = this.loadingCtrl.create({
+      content: 'Einen Moment bitte...'
+    });
+    loading.present();
+    console.log('HTTP start');
+    this.http.get(url, {}, {})
+      .then(data => {
+        console.log('HTTP WORKS');
+        if (data.status === 200 && data.headers['content-type'] === 'text/csv') {
+          console.log('OK WORKS');
+          this.parseCsv(data.data);
+        } else {
+          this.alertError('Unerlaubter Format. Bitte geben Sie eine URL zu einer text/csv Datei!');
+        }
+        loading.dismiss();
+      })
+      .catch(error => {
+
+        const errorCode = error.status;
+        let errorDesc;
+        switch (true) {
+          case (errorCode < 100):
+            errorDesc = 'URL fehlerhaft.';
+            break;
+          case (errorCode < 200):
+            errorDesc = 'URL konnte nicht geladen werden.';
+            break;
+          case (errorCode < 300):
+            errorDesc = 'Unerwarteter Fehler.';
+            break;
+          case (errorCode < 400):
+            errorDesc = 'URL Umleitung fehlgeschlagen.';
+            break;
+          case (errorCode < 500):
+            errorDesc = 'URL Anfrage scheitert.';
+            break;
+          case (errorCode < 600):
+            errorDesc = 'Server Fehler.';
+            break;
+          default:
+            errorDesc = 'Unerwarteter Fehler.';
+
+        }
+        this.alertError(errorDesc + ` (#: ${errorCode})`);
+        loading.dismiss();
+
+      });
+
+  }
+  alertError(error: string): void {
+    this.alertCtrl.create({
+      title: 'Fehler!',
+      subTitle: error,
+      buttons: ['OK']
+    }).present();
+  }
+  parseCsv(data: string): void {
+    console.log('parseCsv');
+
+    const arrOfObj: any[] = parse(data, {
+      header: true
+    }).data;
+
+    if (!arrOfObj.length) {
+      this.alertError('Die Datei konnte nicht verarbeitet werden!');
+      return;
+    }
+    const arrOfRoute: Route[] = arrOfObj.map((el, index) => {
+      const route = Route.fromJsonToInstance(el);
+      if (route) {
+        return route
+      } else {
+        this.alertError(`Fehler bei der Zeile ${index + 1}.`);
+      }
+    });
+    if (!arrOfRoute.length) {
+      this.alertError('Die Datei konnte nicht verarbeitet werden!');
+      return;
+    }
+
+    this.alertCtrl.create({
+      title: `${arrOfRoute.length} Einträge gefunden!`,
+      message: 'Sollen die Einträge Ihre neue Route darstellen oder sollen diese angehangen werden?',
+      buttons: [
+        {
+          text: 'Anhängen',
+          role: 'cancel',
+          handler: () => {
+            this.routesProvider.addRoutes(arrOfRoute);
+
+          }
+        },
+        {
+          text: 'Übernehmen',
+          handler: () => {
+            this.routesProvider.setRoutes(arrOfRoute);
+          }
+        }
+      ]
+    }).present();
+
+
+  }
+  exportCsv(): void {
+
+    const arrayJson: any[] = [];
+
+    this.routesProvider.routes.forEach((el: Route) => {
+      arrayJson.push(el.toJsonForCsv());
+    });
+
+    const csv = unparse(arrayJson);
+    const blob = new Blob([csv], {
+      type: 'text/csv'
+    });
+
+    const name = 'route.csv';
+    const path = this.file.dataDirectory;
+    const options: IWriteOptions = { replace: true };
+
+
+    this.file.writeFile(path, name, blob, options).then(res => {
+      this.socialSharing.share(null, null, path + name);
+    }, err => {
+      console.log('error: ', JSON.stringify(err));
+    });
   }
 
   get autoRefreshHour(): string {

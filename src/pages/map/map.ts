@@ -24,7 +24,7 @@ export class MapPage implements OnDestroy {
     private locationProvider: LocationProvider,
     private zone: NgZone) {
     this.loading = this.loadingCtrl.create({
-      content: 'Einen Moment bitte!'
+      content: 'Einen Moment bitte...'
     });
     this.loading.present();
   }

@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { AlertController, NavController } from 'ionic-angular';
+import { AlertController, Content, NavController } from 'ionic-angular';
 
 import { Route } from '../../models/Route';
 import { RoutesProvider } from '../../providers/routes';
@@ -14,6 +14,7 @@ import { RouteFormPage } from './route-form/route-form';
 export class RoutePage {
 
   @ViewChild(RouteListeComponent) routeListe: RouteListeComponent;
+  @ViewChild(Content) content: Content;
   canCreate: boolean = true;
   reordering: boolean = false;
 
@@ -100,6 +101,7 @@ export class RoutePage {
     return this.routesProvider.isPlaying;
   }
   getRoute(): Route {
+    this.content.resize();
     return this.routesProvider.currentRoute;
   }
   onPress(): void {

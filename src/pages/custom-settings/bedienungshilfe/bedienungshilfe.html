@@ -6,13 +6,177 @@
 
 </ion-header>
 
-<ion-content class="tutorial-page">
 
-  <ion-slides pager>
-    <ion-slide *ngFor="let slide of slides">
-      <img [src]="slide.image" class="slide-image" />
-      <h2 class="slide-title" [innerHTML]="slide.title"></h2>
-      <p [innerHTML]="slide.description"></p>
-    </ion-slide>
-  </ion-slides>
+<ion-content class="outer-content">
+  <ion-list>
+    <ion-list-header>
+      Allgemein
+    </ion-list-header>
+    <ion-item text-wrap>
+      <p>
+        Diese Anwendung vereinfacht es Ihnen eine Liste von Zielen abzuarbeiten.
+        Erstellen Sie hier für eine Route. Daraufhin wird der Player aktiviert. Bei Start des Players werden Sie auf
+        eine
+        Navigation Ihrer Wahl weitergeleitet. Bei Ankunft kehren Sie zurück zu dieser Anwendung. Sie erhalten
+        Informationen zu
+        dem erreichten Ziel. Ebenso können Sie den Zustand des Zieles angeben. Im Anschluss können Sie mit der
+        anstehenden
+        Route fortführen.
+      </p>
+    </ion-item>
+  </ion-list>
+
+  <ion-list>
+    <ion-list-header>
+      Route
+    </ion-list-header>
+    <ion-item text-wrap>
+      <p>
+        Ein Ziel besteht aus den folgenden Komponenten
+      </p>
+      <p>
+        Name: Name des Ziels wird primäre für die Visualisierung verwendet.
+      </p>
+      <p>
+        Erinnerung: Wird bei „Information zum Ziel“ angezeigt.
+      </p>
+      <p>
+        Adressinformationen: Die zufahrende Adresse.
+      </p>
+      <p>
+        Wiederholungen: Ermöglicht täglich wiederholende Ziele einmalig einzutragen.
+      </p>
+    </ion-item>
+    <ion-item text-wrap>
+      Ziel hinzufügen
+      <p>
+        Hierfür können Sie auf der Seite „Route“ im obigen Bereich auf „Hinzufügen“ klicken. Ebenso können Sie eine
+        Route
+        importieren. Lesen Sie hierfür den Eintrag bei „Einstellungen / Route importieren“
+      </p>
+    </ion-item>
+    <ion-item text-wrap>
+      Ziel de-/aktivieren
+      <p>
+        Ziehen Sie den Eintrag nach links. Klicken Sie auf „On/Off“. Beachten Sie dabei, dass dies ein Schalter ist.
+        Ist der
+        Eintrag eine aktive Route, so wird sie für die aktiven Tage deaktiviert. Ist die Route eine inaktive Route,
+        wird sie
+        für inaktive Tage aktiv. Ein manuell de-/aktivierter Eintrag erkennen Sie an der Markierung (blauer Kreis). Sie
+        können
+        unter „Einstellungen“ alle Markierungen entfernen und unter dem Punkt „Status von Zielen zurücksetzen“ die
+        Einträge zurücksetzen.
+      </p>
+    </ion-item>
+    <ion-item text-wrap>
+      Ziel löschen
+      <p>
+        Ziehen Sie den Eintrag nach links. Klicken Sie auf „Löschen“ und bestätigen Sie Ihren Vorgang.
+      </p>
+    </ion-item>
+    <ion-item text-wrap>
+      Ziel bearbeiten
+      <p>
+        Ziehen Sie den Eintrag nach rechts. Klicken Sie auf „Bearbeiten“. Es öffnet sich der Editor. Speichern Sie Ihre
+        Änderung.
+      </p>
+    </ion-item>
+    <ion-item text-wrap>
+      Ziel starten
+      <p>
+        Ziehen Sie den Eintrag nach rechts. Klicken Sie auf „Starten“. Der Aktuelle Ziel wird aktualisiert.
+      </p>
+    </ion-item>
+    <ion-item text-wrap>
+      Information zum Ziel
+      <p>
+        Halten Sie auf dem Eintrag gedrückt, bis im unteren Bereich sich ein schwarzes Fenster öffnet. Darin erhalten
+        Sie die
+        Informationen.
+      </p>
+    </ion-item>
+  </ion-list>
+
+
+  <ion-list>
+    <ion-list-header>
+      Karte
+    </ion-list-header>
+    <ion-item text-wrap>
+      Bedeutungen der Pin-Farben
+      <p>Rot: Das sind Sie.</p>
+      <p>Blau: aktive Ziele.</p>
+      <p>Grün: erreichte Ziele.</p>
+      <p>Grau: inaktive Ziele.</p>
+
+    </ion-item>
+  </ion-list>
+
+  <ion-list>
+    <ion-list-header>
+      Einstellungen
+    </ion-list-header>
+    <ion-item text-wrap>
+      Nur anstehende Ziele anzeigen
+      <p>
+        Bei Wahl werden für heute inaktive Ziele in der Liste nicht angezeigt. Inaktive Ziele sind destotrotz bei der
+        Umsortierung zu sehen.
+      </p>
+    </ion-item>
+    <ion-item text-wrap>
+      Route importieren
+      <p>
+        Geben Sie die URL zur CSV Datei. Beachten Sie auf die Formatierung, diese erfahren Sie beim Exportieren.
+        Vorkommende
+        Fehler werden gemeldet. Sie können im Anschluss entscheiden, ob die Einträge angehängt werden oder ihre Liste
+        überschreiben.
+      </p>
+    </ion-item>
+    <ion-item text-wrap>
+      Route als CSV exportieren
+      <p>
+        Sie können ihre Route als CSV exportieren. Die erste Zeile enthält dabei die Attributsnamen. Attributsnamen mit
+        einem
+        „_“ Präfix sind Pflichtfelder.
+      </p>
+    </ion-item>
+    <ion-item text-wrap>
+      Status von Zielen zurücksetzen
+      <p>
+        Alle manuell de-/aktivierten Ziele werden in ihren unveränderten Zustand zurückgesetzt.
+      </p>
+    </ion-item>
+    <ion-item text-wrap>
+      Alle Ziele löschen
+      <p>
+        Beachten Sie hierbei, dass sie einen Backup machen, indem Sie Ihre Liste im Voraus exportieren, denn dieser
+        Vorgang ist nicht rückkehrbar.
+      </p>
+    </ion-item>
+    <ion-item text-wrap>
+      Automatisch fortführen
+      <p>
+        Bei Abarbeiten eines Zieles wird das nächste Ziel automatisch gestartet. Sie müssen also nicht zusätzlich auf
+        das
+        „Play“ Button klicken.
+      </p>
+    </ion-item>
+    <ion-item text-wrap>
+      Automatisch zurücksetzen
+      <p>
+        Sie können eine bestimmte Uhrzeit eingeben. Bei Neustart ab der Uhrzeit werden erreichte Ziele zurückgesetzt.
+        Dies
+        betrifft nicht den Status eines Zieles.
+      </p>
+    </ion-item>
+    <ion-item text-wrap>
+      Navigation
+      <p>
+        Es werden verfügbare Navigationsanwendungen aufgelistet. Mit Ihrer Wahl setzen Sie die Standartanwendung für
+        die
+        Navigation. Grundsätzlich ist keine Navigation notwendig, denn Sie können diese Anwendung als Checklist
+        verwendet.
+      </p>
+    </ion-item>
+  </ion-list>
 </ion-content>
