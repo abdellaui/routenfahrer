@@ -11,7 +11,7 @@
 <ion-list #listOfRoutes *ngIf="getLength()" [reorder]="canReorder" (ionItemReorder)="reorder($event)">
 
 
-  <ion-item-sliding *ngFor="let item of getRoutes(); let itemIndex = index" [class.hide]="dontSlide() && item.isTask()">
+  <ion-item-sliding *ngFor="let item of getRoutes(); let itemIndex = index" [class.hide]="dontSlide() && !item.isTask()">
     <ion-item (press)="onPress(item)" text-wrap>
       <ion-icon item-start *ngIf="item.isTask()" [name]="
       (item.done)

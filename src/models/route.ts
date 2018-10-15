@@ -74,7 +74,6 @@ export class Route {
   }
   static fromJsonToInstance(json: any): Route | undefined {
     try {
-      console.log(JSON.stringify(json));
       const route = new Route();
       route.name = json._Name;
       route.erinnerung = json.Erinnerung;
@@ -106,7 +105,6 @@ export class Route {
         throw Error('wrong format');
       }
     } catch (e) {
-      console.log('ROUTESERROR:' + e);
       return undefined;
     }
   }

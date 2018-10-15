@@ -31,8 +31,6 @@ export class CustomSettingsPage {
     private http: HTTP,
     private alertCtrl: AlertController) {
 
-    console.log('UFFF');
-
     this.launchNavigator.availableApps().then((result: string[]) => {
       this.aviableNavApp = [];
       for (let nav in result) {
@@ -161,12 +159,9 @@ export class CustomSettingsPage {
       content: 'Einen Moment bitte...'
     });
     loading.present();
-    console.log('HTTP start');
-    this.http.get(url, {}, {})
+    this.http.get(url, null, null)
       .then(data => {
-        console.log('HTTP WORKS');
         if (data.status === 200 && data.headers['content-type'] === 'text/csv') {
-          console.log('OK WORKS');
           this.parseCsv(data.data);
         } else {
           this.alertError('Unerlaubter Format. Bitte geben Sie eine URL zu einer text/csv Datei!');
@@ -214,7 +209,6 @@ export class CustomSettingsPage {
     }).present();
   }
   parseCsv(data: string): void {
-    console.log('parseCsv');
 
     const arrOfObj: any[] = parse(data, {
       header: true

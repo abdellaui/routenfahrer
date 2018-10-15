@@ -66,7 +66,7 @@ export class MapPage implements OnDestroy {
 
       this.routesProvider.routes.forEach((el: Route) => {
 
-        const color = el.canRide() ? 'blue' : el.isTask() ? 'green' : 'black';
+        const color = el.canRide() ? '#00FF00' : el.isTask() ? '#0000FF' : '#000000';
         this.mapMap.addMarker({
           title: `${el.name}`,
           snippet: el.address.formattedAddress,
@@ -104,7 +104,7 @@ export class MapPage implements OnDestroy {
   private addMeMarker() {
     this.mapMap.addMarker({
       title: 'Sie',
-      icon: 'red',
+      icon: '#FF0000',
       position: this.locationProvider.coords
     }).then((marker: Marker) => {
 

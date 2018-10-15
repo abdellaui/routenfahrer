@@ -41,18 +41,22 @@ export class RoutesProvider {
           route.address = Object.assign(new Address(), item.address);
           return route;
         });
-        this.setRoutes(instances);
+        this._setRoutes(instances);
         this.setCurrentIndex(this.settingsProvider.configs.currentIndex);
         this.setIsPlaying(this.settingsProvider.configs.isPlaying);
         this.setIsActionSheetOpen(this.settingsProvider.configs.isActionSheetOpen);
         this.autoRefreshProcedure();
       }).catch((e: Error) => {
-        console.log(JSON.stringify(e));
+        console.log('storage', JSON.stringify(e));
       });
     });
   }
 
   setRoutes(routes: Route[]): void {
+    this.routes = routes;
+    this.storeRoutes();
+  }
+  private _setRoutes(routes: Route[]): void {
     this.routes = routes;
     this.refreshStatRoutesCount();
   }
@@ -246,11 +250,9 @@ export class RoutesProvider {
         this.setIsActionSheetOpen(true);
         actionSheet.onDidDismiss(() => {
           this.setIsActionSheetOpen(false);
-          if (!this.isPlaying) {
+          if (!this.isPlaying)
             resolve(true);
-          } else {
-            reject();
-          }
+
         });
       } else {
         resolve(false);

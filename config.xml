@@ -101,7 +101,6 @@
         <variable name="LOCATION_WHEN_IN_USE_DESCRIPTION" value="Vewendet Geocoder Service um Adressen in Kooardinaten zu transformieren." />
     </plugin>
     <allow-navigation href="http://*/*" />
-    <allow-navigation href="http://192.168.10.5:8100" sessionid="d20508c8" />
     <plugin name="cordova-plugin-badge" spec="~0.8.7" />
     <plugin name="cordova-plugin-actionsheet" spec="2.3.3" />
     <plugin name="cordova-plugin-ios-disableshaketoedit" spec="~1.0.0" />
