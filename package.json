@@ -1,9 +1,9 @@
 {
   "name": "Routenfahrer",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "author": "Abdullah Sahin",
   "homepage": "https://sahin.uk/",
-  "description": "Ihr täglicher Helfer.",
+  "description": "Ihr täglicher Begleiter!",
   "private": true,
   "scripts": {
     "start": "ionic-app-scripts serve",

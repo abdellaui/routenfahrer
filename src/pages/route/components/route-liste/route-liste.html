@@ -16,8 +16,8 @@
       <ion-icon item-start *ngIf="item.isTask()" [name]="
       (item.done)
       ?'checkmark'
-      :(getIndex() == itemIndex)
-      ?'car'
+      :(getIndex() === itemIndex)
+      ? 'car'
       :'pin'">
       </ion-icon>
 
@@ -35,7 +35,7 @@
       </button>
     </ion-item-options>
 
-    <ion-item-options side="right" *ngIf="!canReorder && !isPlaying()">
+    <ion-item-options side="right" *ngIf="!canReorder && !(getIndex() === itemIndex)">
       <button icon-start ion-button color="danger" (click)="delete(item)">
         <ion-icon name="trash"></ion-icon>
         Löschen

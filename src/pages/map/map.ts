@@ -1,6 +1,6 @@
-import { Component, ElementRef, NgZone, OnDestroy, ViewChild } from '@angular/core';
+import { Component, ElementRef, NgZone, ViewChild } from '@angular/core';
 import { GoogleMap, GoogleMaps, ILatLng, Marker } from '@ionic-native/google-maps';
-import { Loading, LoadingController } from 'ionic-angular';
+import { AlertController, Loading, LoadingController } from 'ionic-angular';
 import { first } from 'rxjs/operators';
 
 import { Route } from '../../models/Route';
@@ -11,77 +11,103 @@ import { RoutesProvider } from '../../providers/routes';
   selector: 'page-map',
   templateUrl: 'map.html',
 })
-export class MapPage implements OnDestroy {
+export class MapPage {
 
   @ViewChild('map') map: ElementRef;
   mapMap: GoogleMap;
   markMe: Marker;
   loading: Loading;
-
+  counter: number = 0;
   constructor(
     private loadingCtrl: LoadingController,
     private routesProvider: RoutesProvider,
     private locationProvider: LocationProvider,
+    private alertCtrl: AlertController,
     private zone: NgZone) {
     this.loading = this.loadingCtrl.create({
       content: 'Einen Moment bitte...'
     });
     this.loading.present();
+    this.locationProvider.startTracking('map');
   }
 
   ionViewDidLoad() {
-    this.locationProvider.coordsChange.pipe(first()).subscribe(() => {
-      this.initMap();
-    });
-
-
-    this.locationProvider.coordsChange.subscribe((coords: ILatLng) => {
+    this.locationProvider.coordsChange.pipe(first()).subscribe(() =>
       this.zone.run(() => {
-        this.moveMeMarker(coords);
-      });
-    });
+        this.initMap();
+      }));
+
+
+    this.locationProvider.coordsChange.subscribe((coords: ILatLng) => this.zone.run(() => {
+      this.moveMeMarker(coords);
+
+    }));
   }
 
   ionViewWillLeave() {
 
     this.locationProvider.stopTracking('map');
   }
-  ngOnDestroy() {
+
+  ionViewWillEnter() {
+    this.locationProvider.startTracking('map');
+    this.counter = 0;
+    this.waitForMap();
+  }
+
+  waitForMap() {
     if (this.mapMap) {
-      this.mapMap.destroy();
-      this.mapMap = null;
+      this.initMarkers();
+    } else if (this.counter === 50) {
+      this.dismissLoad();
+      this.alertCtrl.create({
+        title: 'Achtung!',
+        subTitle: 'Es ist ein unerwarteter Fehler entstanden!',
+        buttons: ['OK']
+      }).present();
+    } else {
+      this.counter++;
+      setTimeout(() => {
+        this.waitForMap();
+      }, 100);
     }
   }
-  ionViewWillEnter() {
-    this.locationProvider.startTracking(' map');
-    if (!this.mapMap) return;
+
+  dismissLoad(): void {
+    if (this.loading) {
+      this.loading.dismiss();
+    }
+  }
+
+  initMarkers() {
+    this.dismissLoad();
+
     this.markMe = null;
     this.mapMap.clear().then(() => {
-
 
       this.mapMap.setCameraTarget(this.locationProvider.coords);
 
       this.addMeMarker();
 
-
       this.routesProvider.routes.forEach((el: Route) => {
 
-        const color = el.canRide() ? '#00FF00' : el.isTask() ? '#0000FF' : '#000000';
+        const colorElse = el.isTask() ? '#33CC33FF' : '#FF9900FF';
+        const color = el.canRide() ? '#0066CCFF' : colorElse;
         this.mapMap.addMarker({
           title: `${el.name}`,
           snippet: el.address.formattedAddress,
           icon: color,
           position: el.address.coords
         }).catch(e => {
-          console.log(JSON.stringify(e));
+          console.log('marker', JSON.stringify(e));
         });
 
       });
 
-    }).catch(e => { console.log(JSON.stringify(e)); });
+    }).catch(e => { console.log('clear', JSON.stringify(e)); });
 
   }
-  initMap() {
+  initMap(): void {
     this.mapMap = GoogleMaps.create(this.map.nativeElement,
       {
         camera: {
@@ -91,28 +117,19 @@ export class MapPage implements OnDestroy {
         }
       });
 
-    this.addMeMarker();
-    this.loading.dismiss();
   }
 
-  private moveMeMarker(coords) {
+  private moveMeMarker(coords): void {
     if (!this.markMe) return;
 
     this.markMe.setPosition(coords);
 
   }
-  private addMeMarker() {
-    this.mapMap.addMarker({
+  private addMeMarker(): void {
+    this.markMe = this.mapMap.addMarkerSync({
       title: 'Sie',
       icon: '#FF0000',
       position: this.locationProvider.coords
-    }).then((marker: Marker) => {
-
-      this.zone.run(() => {
-        this.markMe = marker
-      });
-    }).catch(e => {
-      console.log(JSON.stringify(e));
     });
   }
 

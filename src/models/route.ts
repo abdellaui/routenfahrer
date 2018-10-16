@@ -4,7 +4,7 @@ import { Address } from './Address';
 
 export class Route {
   static countInstance = 0;
-  public id: number;
+  public id: string;
   public name: string;
   public erinnerung: string;
   public done: boolean = false;
@@ -26,9 +26,9 @@ export class Route {
 
   constructor(parent?: Address) {
     this.address = (parent) ? parent : new Address();
-    this.id = this.createDate() + Route.countInstance;
+    this.id = `${Route.countInstance}-${this.createDate()}`;
     Route.countInstance++;
-  };
+  }
 
   createDate(): number {
     return new Date().getTime();

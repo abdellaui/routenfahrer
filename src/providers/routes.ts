@@ -53,6 +53,7 @@ export class RoutesProvider {
   }
 
   setRoutes(routes: Route[]): void {
+    this.currentIndex = 0;
     this.routes = routes;
     this.storeRoutes();
   }
@@ -139,40 +140,38 @@ export class RoutesProvider {
   }
 
   changeRoute(route: Route): void {
-    let searchingIndex = -1;
-    this.routes.forEach((item: Route, index: number) => {
-      if (item.id === route.id) {
-        return (searchingIndex = index);
-      }
-    });
-    if (searchingIndex == -1) return;
+    let searchingIndex = this.routes.indexOf(route);
+    if (searchingIndex === -1) return;
     this.routes[searchingIndex] = route;
 
     this.storeRoutes();
   }
 
   removeRoute(route: Route): void {
-    this.checkChangableRoute().then(() => {
 
-      this.alertCtrl.create({
-        title: 'Bestätige Löschung',
-        message: 'Bestätigen Sie die Löschung des Zieles!',
-        buttons: [
-          {
-            text: 'Abbrechen',
-            role: 'cancel',
-            handler: () => { }
-          },
-          {
-            text: 'Bestätigen',
-            handler: () => {
-              this.routes.splice(this.routes.indexOf(route), 1);
-              this.storeRoutes();
+    this.alertCtrl.create({
+      title: 'Bestätige Löschung',
+      message: 'Bestätigen Sie die Löschung des Zieles!',
+      buttons: [
+        {
+          text: 'Abbrechen',
+          role: 'cancel',
+          handler: () => { }
+        },
+        {
+          text: 'Bestätigen',
+          handler: () => {
+            const index = this.routes.indexOf(route);
+            if (index === -1) return;
+            if (index < this.currentIndex) {
+              this.setCurrentIndex(this.currentIndex - 1);
             }
+            this.routes.splice(this.routes.indexOf(route), 1);
+            this.storeRoutes();
           }
-        ]
-      }).present();
-    });
+        }
+      ]
+    }).present();
 
   }
 
@@ -214,7 +213,6 @@ export class RoutesProvider {
 
             this.routeIsDone();
             this.stop();
-            this.next();
             this.autoStart();
 
           }
@@ -312,14 +310,14 @@ export class RoutesProvider {
   }
 
   deleteAllRoutes(): void {
-    this.checkChangableRoute().then(() => {
 
-      this.setRoutes([]);
-      this.reset();
-      this.storeRoutes();
 
-      this.presentToastr('Alle Ziele wurden gelöscht!');
-    });
+    this.setRoutes([]);
+    this.reset();
+    this.storeRoutes();
+
+    this.presentToastr('Alle Ziele wurden gelöscht!');
+
   }
 
   turnAllActiveRoutesOff(): void {

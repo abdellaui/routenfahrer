@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="uk.sahin.routenfahrer" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="uk.sahin.routenfahrer" version="1.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Routenfahrer</name>
-    <description>Ihr täglicher Helfer.</description>
+    <description>Ihr täglicher Begleiter!</description>
     <author email="abdullah@sahin.uk" href="https://sahin.uk/">Abdullah Sahin</author>
     <content src="index.html" />
     <access origin="*" />
