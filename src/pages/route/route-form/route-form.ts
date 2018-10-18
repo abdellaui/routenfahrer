@@ -29,6 +29,7 @@ export class RouteFormPage {
   tabbarDiv: any;
   searchInputValue: string;
   lockPossibleAddresses: boolean = false;
+  disableButton: boolean = false;
   possibleAddresses: Address[];
 
   editing: boolean = false;
@@ -274,7 +275,15 @@ export class RouteFormPage {
     return (this.currentRoute.name && this.currentRoute.address.validateInput());
   }
   storeInput(): void {
+    if (this.disableButton) {
+      return;
+    }
 
+    this.disableButton = true;
+    this.loading = this.loadingCtrl.create({
+      content: 'Einen Moment bitte...'
+    });
+    this.loading.present();
     if (this.validateInput()) {
 
       this.currentRoute.address.generateFormatedAdress();
@@ -306,8 +315,8 @@ export class RouteFormPage {
 
     }
 
-
-
+    this.disableButton = false;
+    this.loading.dismiss();
   }
 
 }

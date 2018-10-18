@@ -40,13 +40,20 @@ export class LocationProvider {
           });
 
 
-          if (Object.keys(e).length !== 0) {
-            this.alertCtrl.create({
-              title: 'Achtung!',
-              subTitle: 'Erlauben Sie den Zugriff auf Ihren Standort!',
-              buttons: ['OK']
-            }).present();
+          if (Object.keys(e).length === 0) {
+            return;
           }
+
+          if (e && !e.message) {
+            return;
+          }
+
+          this.alertCtrl.create({
+            title: 'Achtung!',
+            subTitle: 'Erlauben Sie den Zugriff auf Ihren Standort!',
+            buttons: ['OK']
+          }).present();
+
 
         });
 

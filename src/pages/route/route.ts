@@ -30,7 +30,7 @@ export class RoutePage {
     this.closeSlidingItems();
     this.alertCtrl.create({
       title: 'Hinweis',
-      message: 'Ihr aktuelle Fahrtenhistorie wird zurückgesetzt!',
+      message: 'Ihr aktuelle Fahrtenhistorie wird zurückgesetzt! Ebenso werden alle manuell de-/aktivierten Ziele in ihren unveränderten Zustand zurückgesetzt!',
       buttons: [
         {
           text: 'Abbrechen',

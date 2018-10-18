@@ -191,7 +191,10 @@ export class RoutesProvider {
   reset(): void {
     this.setIsActionSheetOpen(false);
     this.stop();
-    this.routes.forEach((route: Route) => { route.done = false; });
+    this.routes.forEach((route: Route) => {
+      route.done = false;
+      route.switchedActive = false;
+    });
     this.setCurrentIndex(this.findNextTask(-1, true));
     this.storeRoutes();
   }
