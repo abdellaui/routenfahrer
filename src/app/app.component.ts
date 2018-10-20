@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { Environment } from '@ionic-native/google-maps';
-import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
 import { Platform } from 'ionic-angular';
 
@@ -16,7 +15,6 @@ export class MyApp {
   constructor(
     private platform: Platform,
     private statusBar: StatusBar,
-    private splashScreen: SplashScreen,
     private routesProvider: RoutesProvider) {
     this.platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
@@ -25,7 +23,7 @@ export class MyApp {
 
 
       this.statusBar.styleDefault();
-      this.splashScreen.hide();
+
 
       Environment.setEnv({
         'API_KEY_FOR_BROWSER_RELEASE': 'AIzaSyAKK991AzhbVbZWSrv-52YGlsMaEzlHqpA',

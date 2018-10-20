@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Badge } from '@ionic-native/badge';
 import { LaunchNavigator } from '@ionic-native/launch-navigator';
+import { SplashScreen } from '@ionic-native/splash-screen';
 import { Storage } from '@ionic/storage';
 import { ActionSheet, ActionSheetController, AlertController, ToastController } from 'ionic-angular';
 import { ReorderIndexes } from 'ionic-angular/umd/components/item/item-reorder';
@@ -29,11 +30,10 @@ export class RoutesProvider {
     private settingsProvider: SettingsProvider,
     private actionSheetCtrl: ActionSheetController,
     private toastrCtrl: ToastController,
+    private splashScreen: SplashScreen,
     private badge: Badge) {
 
     this.storage.ready().then(() => {
-
-
       this.storage.get('routes').then((result: Route[]) => {
         if (!result) return;
         const instances = result.map(item => {
@@ -46,10 +46,17 @@ export class RoutesProvider {
         this.setIsPlaying(this.settingsProvider.configs.isPlaying);
         this.setIsActionSheetOpen(this.settingsProvider.configs.isActionSheetOpen);
         this.autoRefreshProcedure();
+        this._hideSplash();
+
       }).catch((e: Error) => {
+        this._hideSplash();
         console.log('storage', JSON.stringify(e));
       });
     });
+
+  }
+  private _hideSplash(): void {
+    setTimeout(() => { this.splashScreen.hide(); }, 300);
   }
 
   setRoutes(routes: Route[]): void {
@@ -195,8 +202,8 @@ export class RoutesProvider {
       route.done = false;
       route.switchedActive = false;
     });
-    this.setCurrentIndex(this.findNextTask(-1, true));
     this.storeRoutes();
+    this.setCurrentIndex(this.findNextTask(-1, true));
   }
 
   routeIsDone(): void {

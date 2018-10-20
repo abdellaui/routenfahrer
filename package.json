@@ -1,6 +1,6 @@
 {
   "name": "Routenfahrer",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "author": "Abdullah Sahin",
   "homepage": "https://sahin.uk/",
   "description": "Ihr täglicher Begleiter!",
@@ -48,7 +48,6 @@
     "cheerio": "^0.19.0",
     "cordova-android": "~7.1.1",
     "cordova-browser": "5.0.4",
-    "cordova-ios": "~4.5.5",
     "cordova-plugin-actionsheet": "2.3.3",
     "cordova-plugin-add-swift-support": "1.7.1",
     "cordova-plugin-badge": "~0.8.7",
@@ -76,7 +75,8 @@
     "sw-toolbox": "3.6.0",
     "uk.co.workingedge.phonegap.plugin.launchnavigator": "4.2.2",
     "xcode": "^1.0.0",
-    "zone.js": "0.8.26"
+    "zone.js": "0.8.26",
+    "cordova-ios": "~4.5.5"
   },
   "devDependencies": {
     "@ionic/app-scripts": "3.2.0",
@@ -95,7 +95,7 @@
         "GEOLOCATION_USAGE_DESCRIPTION": "To locate you"
       },
       "uk.co.workingedge.phonegap.plugin.launchnavigator": {
-        "LOCATION_USAGE_DESCRIPTION": "This app requires access to your location for navigation purposes"
+        "LOCATION_USAGE_DESCRIPTION": "Diese Anwendung benötigt Zugriff auf Standort."
       },
       "cordova-plugin-googlemaps": {
         "API_KEY_FOR_ANDROID": "AIzaSyAKK991AzhbVbZWSrv-52YGlsMaEzlHqpA",
@@ -104,7 +104,7 @@
         "ANDROID_SUPPORT_V4_VERSION": "27.+"
       },
       "cordova-plugin-nativegeocoder": {
-        "LOCATION_WHEN_IN_USE_DESCRIPTION": "Vewendet Geocoder Service um Adressen in Kooardinaten zu transformieren."
+        "LOCATION_WHEN_IN_USE_DESCRIPTION": "Verwendet Geocoder Service um Adressen in Kooardinaten zu transformieren."
       },
       "cordova-sqlite-storage": {},
       "cordova-plugin-badge": {},
