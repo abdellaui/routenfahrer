@@ -35,6 +35,7 @@ export class RoutesProvider {
 
     this.storage.ready().then(() => {
       this.storage.get('routes').then((result: Route[]) => {
+        this._hideSplash();
         if (!result) return;
         const instances = result.map(item => {
           const route = Object.assign(new Route(), item);
@@ -46,7 +47,6 @@ export class RoutesProvider {
         this.setIsPlaying(this.settingsProvider.configs.isPlaying);
         this.setIsActionSheetOpen(this.settingsProvider.configs.isActionSheetOpen);
         this.autoRefreshProcedure();
-        this._hideSplash();
 
       }).catch((e: Error) => {
         this._hideSplash();
