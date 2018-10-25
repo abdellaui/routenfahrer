@@ -35,13 +35,14 @@ export class MyApp {
       } else {
         Environment.setBackgroundColor("#ffffff");
       }
-      this.routesProvider.checkChangableRoute();
+
+      this.routesProvider.userEntersApp();
     });
 
 
 
     this.platform.resume.subscribe(e => {
-      this.routesProvider.checkChangableRoute();
+      this.routesProvider.userEntersApp();
     });
 
   }

@@ -86,6 +86,11 @@ export class RouteListeComponent {
     return this.routesProvider.currentIndex
   }
 
+  getCurrentRoute(): Route {
+    return this.routesProvider.currentRoute;
+  }
+
+
   getInactiveText(): string {
     const count = this.getInactiveCount();
 

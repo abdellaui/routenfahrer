@@ -35,7 +35,7 @@
       </button>
     </ion-item-options>
 
-    <ion-item-options side="right" *ngIf="!canReorder && !(getIndex() === itemIndex)">
+    <ion-item-options side="right" *ngIf="!canReorder && !(getIndex() === itemIndex && getCurrentRoute())">
       <button icon-start ion-button color="danger" (click)="delete(item)">
         <ion-icon name="trash"></ion-icon>
         Löschen

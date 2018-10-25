@@ -68,7 +68,7 @@ export class SettingsProvider {
     this.storeConfigs();
   }
   setAutoRefreshLastDate(val: string) {
-    if (this.configs.autoRefreshHour === val) return;
+    if (this.configs.autoRefreshLastDate === val) return;
     this.configs.autoRefreshLastDate = val;
     this.storeConfigs();
   }

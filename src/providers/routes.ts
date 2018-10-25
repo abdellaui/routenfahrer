@@ -46,7 +46,6 @@ export class RoutesProvider {
         this.setCurrentIndex(this.settingsProvider.configs.currentIndex);
         this.setIsPlaying(this.settingsProvider.configs.isPlaying);
         this.setIsActionSheetOpen(this.settingsProvider.configs.isActionSheetOpen);
-        this.autoRefreshProcedure();
 
       }).catch((e: Error) => {
         this._hideSplash();
@@ -377,5 +376,13 @@ export class RoutesProvider {
       closeButtonText: 'Ok',
       dismissOnPageChange: true
     }).present();
+  }
+
+  userEntersApp(): void {
+    if (this.settingsProvider.doAutoRefresh()) {
+      this.autoRefreshProcedure();
+    } else {
+      this.checkChangableRoute();
+    }
   }
 }
