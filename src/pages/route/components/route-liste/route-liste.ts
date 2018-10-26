@@ -95,7 +95,7 @@ export class RouteListeComponent {
     const count = this.getInactiveCount();
 
     if (count === 0)
-      return 'Füge einen Ziel zu!';
+      return 'Füge ein Ziel hinzu!';
     else if (count === 1)
       return `${count} inaktives Ziel vorhanden.`;
     else
