@@ -19,7 +19,7 @@
 
 <ion-content class="outer-content">
 
-  <ion-refresher *ngIf="!getAutoRefresh()" (ionRefresh)="doRefresh($event)" [enabled]="!reordering">
+  <ion-refresher *ngIf="getCount()" (ionRefresh)="doRefresh($event)" [enabled]="!reordering">
     <ion-refresher-content pullingIcon="arrow-dropdown" pullingText="Ziehe um Fahrtenhistorie zurückzusetzen!"
       refreshingSpinner="circles" refreshingText="Zurücksetzung...">
     </ion-refresher-content>
@@ -28,7 +28,7 @@
   <route-liste [reorder]="reordering"></route-liste>
 </ion-content>
 
-<ion-footer [class]="!getRoute()?'hide':''">
+<ion-footer [class.hide]="!getRoute() || hidePlayer">
   <ion-item *ngIf="getRoute()" class="mainToolbar" no-lines>
     <div class="text-ellipsis" (press)="onPress()">
       {{getRoute().name}}

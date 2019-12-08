@@ -3,7 +3,6 @@ import { AlertController, Content, NavController } from 'ionic-angular';
 
 import { Route } from '../../models/Route';
 import { RoutesProvider } from '../../providers/routes';
-import { SettingsProvider } from '../../providers/settings';
 import { RouteListeComponent } from './components/route-liste/route-liste';
 import { RouteFormPage } from './route-form/route-form';
 
@@ -17,13 +16,12 @@ export class RoutePage {
   @ViewChild(Content) content: Content;
   canCreate: boolean = true;
   reordering: boolean = false;
+  hidePlayer: boolean = false;
 
   constructor(
     private navCtrl: NavController,
     private routesProvider: RoutesProvider,
-    private settingsProvider: SettingsProvider,
     private alertCtrl: AlertController) {
-
   }
 
   doRefresh(event: any): void {
@@ -66,16 +64,12 @@ export class RoutePage {
     this.closeSlidingItems();
     this.canCreate = !this.canCreate;
     this.reordering = !this.reordering;
-
+    this.hidePlayer = this.reordering
   }
 
   closeSlidingItems() {
     if (this.routeListe)
       this.routeListe.closeSlidingItems();
-  }
-
-  getAutoRefresh(): boolean {
-    return this.settingsProvider.configs.autoRefresh;
   }
 
   getCount(): number {

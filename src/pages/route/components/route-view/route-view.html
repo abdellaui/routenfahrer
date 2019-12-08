@@ -8,7 +8,7 @@
       {{ route.address.formattedAddress }}
     </p>
   </div>
-  <div text-center>
+  <div class="dayHolder">
     <ion-badge *ngFor="let day of route.dayKeys()" [color]="
                     route.activeDays[day]
                     ? 'default'

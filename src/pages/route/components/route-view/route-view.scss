@@ -1,5 +1,8 @@
 route-view {
     div {
+        &.dayHolder {
+            text-align: center;
+        }
         &.inactive {
             opacity: 0.5;
         }
